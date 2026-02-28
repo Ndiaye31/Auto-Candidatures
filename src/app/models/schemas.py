@@ -18,6 +18,7 @@ class JobCreate(BaseModel):
     company: str
     location: str | None = None
     source_url: str | None = None
+    source: str | None = None
     description: str | None = None
     status: JobStatus = JobStatus.NEW
 

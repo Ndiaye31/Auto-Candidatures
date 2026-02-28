@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from enum import StrEnum
 from typing import Any
 
-from sqlalchemy import Column, JSON
+from sqlalchemy import Column, JSON, String
 from sqlmodel import Field, SQLModel
 
 
@@ -56,7 +56,11 @@ class Job(SQLModel, table=True):
     title: str = Field(index=True)
     company: str = Field(index=True)
     location: str | None = None
-    source_url: str | None = None
+    source_url: str | None = Field(
+        default=None,
+        sa_column=Column("source_url", String, unique=True, nullable=True),
+    )
+    source: str | None = None
     description: str | None = None
     status: JobStatus = Field(default=JobStatus.NEW, index=True)
     created_at: datetime = Field(default_factory=utcnow, nullable=False)

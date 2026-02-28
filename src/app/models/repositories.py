@@ -67,6 +67,10 @@ class SQLModelRepository(Generic[ModelT]):
 class JobRepository(SQLModelRepository[Job]):
     model = Job
 
+    def get_by_source_url(self, source_url: str) -> Job | None:
+        statement = select(Job).where(Job.source_url == source_url)
+        return self.session.exec(statement).first()
+
 
 class ApplicationRepository(SQLModelRepository[Application]):
     model = Application
