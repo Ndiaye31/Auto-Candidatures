@@ -11,8 +11,10 @@ from app.models.repositories import ApplicationRepository, JobRepository
 from app.models.tables import ApplicationStage
 from app.services.import_offres import (
     add_job,
+    get_alerts_sync_status,
     import_jobs_from_alerts_excel_path,
     import_jobs_from_csv,
+    sync_jobs_from_default_alerts_excel,
 )
 from app.services.profiles import ensure_default_profile
 
@@ -115,3 +117,57 @@ def test_import_jobs_from_alerts_excel_maps_and_deduplicates_rows(tmp_path: Path
     assert application is not None
     assert application.application_channel == "indeed_easy_apply"
     assert application.stage == ApplicationStage.APPLIED
+
+
+def test_sync_jobs_from_default_alerts_excel_tracks_file_changes(tmp_path: Path) -> None:
+    engine = create_db_engine("sqlite://")
+    init_db(engine)
+    excel_path = tmp_path / "job_offers.xlsx"
+    dataframe = pd.DataFrame(
+        [
+            {
+                "ID (jk)": "abc123",
+                "Titre du poste": "Data Analyst H/F NOVEOCARE 2.7 Chartres (28) Candidature simplifiée",
+                "URL de l'offre": "https://fr.indeed.com/viewjob?jk=abc123",
+                "Description": "Data Analyst H/F Chartres (28) Candidature simplifiée Analyse de données",
+                "Source": "Scrapper offres Indeed",
+                "Date email": "Tue, 17 Feb 2026 01:06:03 +0000",
+                "Sujet email": "Alerte Indeed",
+                "Expéditeur": "\"Indeed\" <donotreply@jobalert.indeed.com>",
+                "Statut": None,
+                "Type Candidature": "Easy candidature",
+                "Notes": "",
+            }
+        ]
+    )
+    dataframe.to_excel(excel_path, index=False)
+
+    from app.services import import_offres as import_module
+
+    original_default = import_module.DEFAULT_ALERTS_EXCEL_PATH
+    original_state = import_module.ALERTS_SYNC_STATE_PATH
+    import_module.DEFAULT_ALERTS_EXCEL_PATH = excel_path
+    import_module.ALERTS_SYNC_STATE_PATH = tmp_path / "alerts_sync_state.json"
+    try:
+        with Session(engine) as session:
+            profile = ensure_default_profile(session)
+            status_before = get_alerts_sync_status(excel_path)
+            status_after, result_first = sync_jobs_from_default_alerts_excel(
+                session,
+                profile_id=profile.id,
+            )
+            status_final, result_second = sync_jobs_from_default_alerts_excel(
+                session,
+                profile_id=profile.id,
+            )
+    finally:
+        import_module.DEFAULT_ALERTS_EXCEL_PATH = original_default
+        import_module.ALERTS_SYNC_STATE_PATH = original_state
+
+    assert status_before.exists is True
+    assert status_before.changed is True
+    assert result_first is not None
+    assert result_first.created == 1
+    assert status_after.changed is False
+    assert result_second is None
+    assert status_final.changed is False

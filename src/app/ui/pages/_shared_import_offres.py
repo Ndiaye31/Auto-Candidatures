@@ -7,10 +7,13 @@ import streamlit as st
 
 from app.models.db import get_session, init_db
 from app.services.import_offres import (
+    get_alerts_sync_status,
+    get_default_alerts_excel_path,
     InvalidJobRowError,
     add_job,
     import_jobs_from_alerts_excel_path,
     import_jobs_from_csv,
+    sync_jobs_from_default_alerts_excel,
 )
 from app.ui.components import get_active_profile_id
 from app.utils.logging import get_logger
@@ -42,6 +45,45 @@ def _render_csv_import() -> None:
 
 def _render_excel_alerts_import() -> None:
     st.subheader("Import Excel alertes")
+    default_path = get_default_alerts_excel_path()
+    sync_status = get_alerts_sync_status(default_path)
+    st.caption(f"Fichier surveille: {default_path}")
+    if sync_status.exists:
+        if sync_status.changed:
+            st.info("Le fichier surveille a change et peut etre resynchronise.")
+        else:
+            st.success("Le fichier surveille est deja synchronise.")
+    else:
+        st.warning("Le fichier surveille n'existe pas encore dans `data/`.")
+
+    if st.button("Synchroniser le fichier surveille", use_container_width=True):
+        try:
+            with get_session() as session:
+                profile_id = get_active_profile_id(session)
+                result_status, result = sync_jobs_from_default_alerts_excel(
+                    session,
+                    profile_id=profile_id,
+                    force=True,
+                )
+        except InvalidJobRowError as exc:
+            st.error(str(exc))
+        except Exception as exc:
+            LOGGER.exception("Watched Excel alerts sync failed")
+            st.error("Synchronisation du fichier surveille impossible.")
+            st.exception(exc)
+        else:
+            if result is None:
+                st.info("Aucun changement detecte dans le fichier surveille.")
+            else:
+                st.success(
+                    f"Synchronisation terminee: {result.created} créées, {result.skipped} ignorées."
+                )
+                if profile_id is not None:
+                    st.caption("Le workflow ATS du profil actif a aussi été enrichi.")
+            if result_status.exists and not result_status.changed:
+                st.caption("Etat de synchronisation mis a jour.")
+
+    st.divider()
     st.caption(
         "Format attendu: fichier d'alertes Indeed/HelloWork avec colonnes source "
         "du type `Titre du poste`, `URL de l'offre`, `Description`, `Statut`, "

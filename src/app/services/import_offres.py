@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 from dataclasses import dataclass
+import json
 from pathlib import Path
 import re
 from typing import TextIO
@@ -19,6 +20,8 @@ from app.services.ats import (
 )
 
 CSV_COLUMNS = ("title", "company", "location", "url", "description", "source")
+DEFAULT_ALERTS_EXCEL_PATH = Path("data/job_offers.xlsx")
+ALERTS_SYNC_STATE_PATH = Path("data/imports/alerts_sync_state.json")
 EXCEL_ALERT_COLUMNS = (
     "ID (jk)",
     "Titre du poste",
@@ -44,6 +47,14 @@ class ImportResult:
     skipped: int = 0
 
 
+@dataclass(slots=True)
+class AlertsSyncStatus:
+    file_path: Path
+    exists: bool
+    changed: bool
+    fingerprint: str | None
+
+
 def _coerce_cell(value: object) -> str | None:
     if value is None:
         return None
@@ -51,6 +62,47 @@ def _coerce_cell(value: object) -> str | None:
         return None
     text = str(value).strip()
     return text or None
+
+
+def _get_file_fingerprint(file_path: Path) -> str | None:
+    if not file_path.exists():
+        return None
+    stat = file_path.stat()
+    return f"{int(stat.st_mtime)}:{stat.st_size}"
+
+
+def _load_alerts_sync_state() -> dict[str, str]:
+    if not ALERTS_SYNC_STATE_PATH.exists():
+        return {}
+    try:
+        return json.loads(ALERTS_SYNC_STATE_PATH.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return {}
+
+
+def _save_alerts_sync_state(state: dict[str, str]) -> None:
+    ALERTS_SYNC_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    ALERTS_SYNC_STATE_PATH.write_text(
+        json.dumps(state, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+
+def get_default_alerts_excel_path() -> Path:
+    return DEFAULT_ALERTS_EXCEL_PATH
+
+
+def get_alerts_sync_status(file_path: str | Path | None = None) -> AlertsSyncStatus:
+    resolved_path = Path(file_path) if file_path is not None else DEFAULT_ALERTS_EXCEL_PATH
+    fingerprint = _get_file_fingerprint(resolved_path)
+    state = _load_alerts_sync_state()
+    previous = state.get(str(resolved_path.resolve())) if resolved_path.exists() else None
+    return AlertsSyncStatus(
+        file_path=resolved_path,
+        exists=resolved_path.exists(),
+        changed=fingerprint is not None and fingerprint != previous,
+        fingerprint=fingerprint,
+    )
 
 
 def _clean_text(value: str | None) -> str | None:
@@ -237,7 +289,7 @@ def _ingest_alert_row(
         source=_coerce_cell(row.get("Source")),
     )
 
-    if profile_id is not None:
+    if profile_id is not None and created:
         application_channel = _normalize_application_channel(
             _coerce_cell(row.get("Source")),
             _coerce_cell(row.get("Type Candidature")),
@@ -368,3 +420,28 @@ def import_jobs_from_alerts_excel_path(
         else:
             result.skipped += 1
     return result
+
+
+def sync_jobs_from_default_alerts_excel(
+    session: Session,
+    *,
+    profile_id: int | None = None,
+    force: bool = False,
+) -> tuple[AlertsSyncStatus, ImportResult | None]:
+    status = get_alerts_sync_status(DEFAULT_ALERTS_EXCEL_PATH)
+    if not status.exists:
+        return status, None
+    if not status.changed and not force:
+        return status, None
+
+    result = import_jobs_from_alerts_excel_path(
+        session,
+        status.file_path,
+        profile_id=profile_id,
+    )
+    fingerprint = _get_file_fingerprint(status.file_path)
+    if fingerprint is not None:
+        state = _load_alerts_sync_state()
+        state[str(status.file_path.resolve())] = fingerprint
+        _save_alerts_sync_state(state)
+    return get_alerts_sync_status(status.file_path), result

@@ -5,6 +5,11 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
+from app.browser.connectors import detect_connector
+from app.browser.playwright_runtime import (
+    PlaywrightSessionConfig,
+    run_playwright_multi_step_flow,
+)
 from app.models.db import get_session
 from app.models.repositories import ApplicationRepository, JobRepository
 from app.models.tables import ApplicationStage
@@ -84,6 +89,8 @@ def render() -> None:
     if active_profile is not None:
         st.caption(f"Profil actif: {active_profile.name}")
     domain_key = st.text_input("Site / domaine", value=get_domain_key(job.source_url))
+    connector = detect_connector(job.source_url)
+    st.caption(f"Connecteur navigateur: {connector.label}")
     html = st.text_area(
         "HTML du formulaire",
         height=240,
@@ -113,6 +120,62 @@ def render() -> None:
         else:
             st.success("Offre marquee comme applied.")
     col3.caption("Auto-submit interdit: cette page n'envoie rien.")
+
+    st.divider()
+    st.subheader("Navigation navigateur (beta)")
+    beta_col1, beta_col2, beta_col3 = st.columns([1, 1, 2])
+    headless = beta_col1.checkbox("Headless", value=False)
+    slow_mo_ms = beta_col2.selectbox("Slow mode", options=[0, 250, 500, 1000], index=1)
+    beta_col3.caption(
+        "Le flux remplit les champs detectes, clique sur les etapes suivantes, "
+        "et s'arrete avant submit."
+    )
+    if st.button("Lancer la navigation assistee", use_container_width=True):
+        if not job.source_url:
+            st.warning("Aucune URL source n'est disponible pour cette offre.")
+        else:
+            try:
+                with st.spinner("Navigation Playwright en cours..."):
+                    runtime_result = run_playwright_multi_step_flow(
+                        start_url=job.source_url,
+                        profile_data=profile_data,
+                        config=PlaywrightSessionConfig(
+                            headless=headless,
+                            slow_mo_ms=int(slow_mo_ms),
+                        ),
+                        connector=connector,
+                    )
+            except Exception as exc:
+                LOGGER.exception("Playwright assisted navigation failed", extra={"job_id": job.id})
+                st.error("Navigation assistee impossible.")
+                st.exception(exc)
+            else:
+                st.session_state[f"browser_run_{job.id}"] = {
+                    "connector": runtime_result.connector,
+                    "apply_click_selector": runtime_result.apply_click_selector,
+                    "stop_reason": runtime_result.automation_run.stop_reason,
+                    "steps": [
+                        {
+                            "step_index": step.snapshot.step_index,
+                            "url": step.snapshot.url,
+                            "fields": len(step.snapshot.detected_fields),
+                            "filled": len(step.filled_fields),
+                            "clicked_next": step.clicked_next,
+                            "stopped_before_submit": step.stopped_before_submit,
+                        }
+                        for step in runtime_result.automation_run.steps
+                    ],
+                }
+                st.success("Session navigateur terminee sans submit.")
+
+    browser_run = st.session_state.get(f"browser_run_{job.id}")
+    if browser_run:
+        st.caption(
+            f"Connecteur: {browser_run['connector']} | stop: {browser_run['stop_reason']}"
+        )
+        if browser_run["apply_click_selector"]:
+            st.caption(f"Bouton d'entree clique: {browser_run['apply_click_selector']}")
+        st.dataframe(browser_run["steps"], use_container_width=True, hide_index=True)
 
     detect_clicked = st.button("Detecter les champs", type="primary")
     if detect_clicked and not html.strip():

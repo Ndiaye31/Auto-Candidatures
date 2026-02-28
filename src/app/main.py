@@ -11,6 +11,7 @@ if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
 from app.models.db import get_session, init_db  # noqa: E402
+from app.services.import_offres import sync_jobs_from_default_alerts_excel  # noqa: E402
 from app.services.profiles import (  # noqa: E402
     ProfileError,
     create_profile,
@@ -150,6 +151,11 @@ def _render_home() -> None:
     try:
         with get_session() as session:
             active_profile, profile_data = get_active_profile_payload(session)
+            profile_id = active_profile.id if active_profile is not None else None
+            sync_status, sync_result = sync_jobs_from_default_alerts_excel(
+                session,
+                profile_id=profile_id,
+            )
             jobs = list_jobs_with_score(session, profile_data=profile_data)
     except Exception as exc:
         LOGGER.exception("Failed to load jobs")
@@ -165,6 +171,12 @@ def _render_home() -> None:
             st.sidebar.warning("Aucun profil actif et aucun profile.yaml detecte.")
         else:
             st.sidebar.success(f"Profil fichier charge: {profile_path}")
+    if sync_result is not None:
+        st.sidebar.caption(
+            f"Sync alertes: {sync_result.created} nouvelles, {sync_result.skipped} ignorees"
+        )
+    elif sync_status.exists:
+        st.sidebar.caption("Sync alertes: aucune modification detectee")
 
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("Offres", len(jobs))
