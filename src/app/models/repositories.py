@@ -7,9 +7,11 @@ from sqlmodel import Session, SQLModel, select
 
 from app.models.tables import (
     Application,
+    CandidateProfile,
     Contact,
     Event,
     Job,
+    User,
 )
 
 ModelT = TypeVar("ModelT", bound=SQLModel)
@@ -70,6 +72,59 @@ class JobRepository(SQLModelRepository[Job]):
     def get_by_source_url(self, source_url: str) -> Job | None:
         statement = select(Job).where(Job.source_url == source_url)
         return self.session.exec(statement).first()
+
+
+class UserRepository(SQLModelRepository[User]):
+    model = User
+
+    def get_by_email(self, email: str) -> User | None:
+        statement = select(User).where(User.email == email)
+        return self.session.exec(statement).first()
+
+
+class CandidateProfileRepository(SQLModelRepository[CandidateProfile]):
+    model = CandidateProfile
+
+    def list_by_user(self, user_id: int) -> list[CandidateProfile]:
+        statement = (
+            select(CandidateProfile)
+            .where(CandidateProfile.user_id == user_id)
+            .order_by(CandidateProfile.is_default.desc(), CandidateProfile.name)
+        )
+        return list(self.session.exec(statement))
+
+    def get_for_user(self, profile_id: int, user_id: int) -> CandidateProfile | None:
+        statement = select(CandidateProfile).where(
+            CandidateProfile.id == profile_id,
+            CandidateProfile.user_id == user_id,
+        )
+        return self.session.exec(statement).first()
+
+    def get_default_for_user(self, user_id: int) -> CandidateProfile | None:
+        statement = (
+            select(CandidateProfile)
+            .where(
+                CandidateProfile.user_id == user_id,
+                CandidateProfile.is_default.is_(True),
+            )
+            .order_by(CandidateProfile.id.desc())
+        )
+        return self.session.exec(statement).first()
+
+    def set_default(self, profile_id: int, user_id: int) -> CandidateProfile | None:
+        profiles = self.list_by_user(user_id)
+        target: CandidateProfile | None = None
+        for profile in profiles:
+            profile.is_default = profile.id == profile_id
+            if hasattr(profile, "updated_at"):
+                setattr(profile, "updated_at", utcnow())
+            self.session.add(profile)
+            if profile.id == profile_id:
+                target = profile
+        self.session.commit()
+        if target is not None:
+            self.session.refresh(target)
+        return target
 
 
 class ApplicationRepository(SQLModelRepository[Application]):

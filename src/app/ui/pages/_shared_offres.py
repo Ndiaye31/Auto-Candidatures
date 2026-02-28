@@ -5,7 +5,7 @@ from pathlib import Path
 import streamlit as st
 
 from app.models.db import get_session
-from app.ui.components import get_default_profile_path, list_jobs_with_score
+from app.ui.components import get_active_profile_payload, list_jobs_with_score
 from app.utils.logging import get_logger
 
 LOGGER = get_logger("ui.offres")
@@ -13,20 +13,20 @@ LOGGER = get_logger("ui.offres")
 
 def render() -> None:
     st.title("Offres")
-    profile_path = get_default_profile_path()
-    if profile_path is None:
-        st.warning("Aucun profile.yaml detecte. Les scores sont masques.")
-    else:
-        st.caption(f"Profil utilise pour le score: {Path(profile_path)}")
-
     try:
         with get_session() as session:
-            jobs = list_jobs_with_score(session, profile_path)
+            active_profile, profile_data = get_active_profile_payload(session)
+            jobs = list_jobs_with_score(session, profile_data=profile_data)
     except Exception as exc:
         LOGGER.exception("Failed to load offers")
         st.error("Impossible de charger les offres.")
         st.exception(exc)
         return
+
+    if active_profile is None:
+        st.warning("Aucun profil actif en base. Les scores peuvent etre masques.")
+    else:
+        st.caption(f"Profil utilise pour le score: {active_profile.name}")
 
     company_options = sorted({job["company"] for job in jobs})
     status_options = sorted({job["status"] for job in jobs})

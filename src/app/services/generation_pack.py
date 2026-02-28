@@ -8,9 +8,9 @@ import re
 from typing import Any
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-import yaml
 
 from app.models.tables import Job
+from app.services.profile_loader import load_profile_payload
 
 TEMPLATES_ROOT = Path(__file__).resolve().parents[1] / "templates"
 PLACEHOLDER = "[A COMPLETER]"
@@ -34,11 +34,6 @@ def _jinja_env() -> Environment:
         trim_blocks=True,
         lstrip_blocks=True,
     )
-
-
-def _load_profile(profile_path: str | Path) -> dict[str, Any]:
-    with Path(profile_path).open("r", encoding="utf-8") as handle:
-        return yaml.safe_load(handle) or {}
 
 
 def _clean_text(value: Any) -> str | None:
@@ -169,10 +164,17 @@ def _slugify(value: str) -> str:
 
 def generate_application_pack(
     job: Job,
-    profile_path: str | Path,
+    profile_path: str | Path | None,
     output_root: str | Path,
+    *,
+    profile_yaml: str | None = None,
+    profile_data: dict[str, Any] | None = None,
 ) -> ApplicationPackResult:
-    profile = _load_profile(profile_path)
+    profile = load_profile_payload(
+        profile_path=profile_path,
+        profile_yaml=profile_yaml,
+        profile_data=profile_data,
+    )
     answers = _build_canonical_answers(job, profile)
     cover_letter = _render_template(
         "lm/base.md.jinja",

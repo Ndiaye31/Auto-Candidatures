@@ -6,12 +6,14 @@ import json
 from typing import Any
 from urllib.parse import urlparse
 
+import streamlit as st
 from sqlmodel import Session
 
-from app.models.repositories import JobRepository
-from app.models.tables import Job, JobStatus
+from app.models.repositories import CandidateProfileRepository, JobRepository, UserRepository
+from app.models.tables import CandidateProfile, Job, JobStatus, User
 from app.services.extraction_dom import FieldCandidate
 from app.services.scoring import ScoreResult, load_profile, score_job
+from app.services.profile_loader import load_profile_payload
 from app.utils.logging import get_logger
 
 MAPPINGS_PATH = Path("data/mappings/site_mappings.json")
@@ -30,22 +32,77 @@ def get_default_profile_path() -> Path | None:
     return None
 
 
-def compute_job_score(job: Job, profile_path: Path | None) -> ScoreResult | None:
-    if profile_path is None or not profile_path.exists():
+def get_current_user(session: Session) -> User | None:
+    user_id = st.session_state.get("auth_user_id")
+    if user_id is None:
+        return None
+    return UserRepository(session).get(int(user_id))
+
+
+def get_active_profile(session: Session, user_id: int | None = None) -> CandidateProfile | None:
+    resolved_user_id = user_id or st.session_state.get("auth_user_id")
+    if resolved_user_id is None:
+        return None
+    repository = CandidateProfileRepository(session)
+    selected_profile_id = st.session_state.get("active_profile_id")
+    if selected_profile_id is not None:
+        profile = repository.get_for_user(int(selected_profile_id), int(resolved_user_id))
+        if profile is not None:
+            return profile
+    profile = repository.get_default_for_user(int(resolved_user_id))
+    if profile is not None:
+        st.session_state["active_profile_id"] = profile.id
+    return profile
+
+
+def get_active_profile_payload(session: Session) -> tuple[CandidateProfile | None, dict[str, Any] | None]:
+    profile = get_active_profile(session)
+    if profile is not None:
+        return profile, load_profile_payload(profile_yaml=profile.profile_yaml)
+
+    profile_path = get_default_profile_path()
+    if profile_path is None:
+        return None, None
+    return None, load_profile_payload(profile_path=profile_path)
+
+
+def compute_job_score(
+    job: Job,
+    profile_path: Path | None = None,
+    *,
+    profile_yaml: str | None = None,
+    profile_data: dict[str, Any] | None = None,
+) -> ScoreResult | None:
+    if profile_path is None and profile_yaml is None and profile_data is None:
         return None
     try:
-        profile = load_profile(profile_path)
+        profile = load_profile(
+            profile_path,
+            profile_yaml=profile_yaml,
+            profile_data=profile_data,
+        )
         return score_job(job.description or "", profile)
     except Exception:
         LOGGER.exception("Failed to compute score", extra={"job_id": job.id})
         return None
 
 
-def list_jobs_with_score(session: Session, profile_path: Path | None) -> list[dict[str, Any]]:
+def list_jobs_with_score(
+    session: Session,
+    profile_path: Path | None = None,
+    *,
+    profile_yaml: str | None = None,
+    profile_data: dict[str, Any] | None = None,
+) -> list[dict[str, Any]]:
     repository = JobRepository(session)
     rows: list[dict[str, Any]] = []
     for job in repository.list():
-        score_result = compute_job_score(job, profile_path)
+        score_result = compute_job_score(
+            job,
+            profile_path,
+            profile_yaml=profile_yaml,
+            profile_data=profile_data,
+        )
         rows.append(
             {
                 "id": job.id,

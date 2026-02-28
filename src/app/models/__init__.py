@@ -7,13 +7,16 @@ from app.models.db import (
 )
 from app.models.repositories import (
     ApplicationRepository,
+    CandidateProfileRepository,
     ContactRepository,
     EventRepository,
     JobRepository,
+    UserRepository,
 )
 from app.models.tables import (
     Application,
     ApplicationStatus,
+    CandidateProfile,
     Contact,
     ContactStatus,
     Event,
@@ -21,12 +24,15 @@ from app.models.tables import (
     Job,
     JobStatus,
     SchemaVersion,
+    User,
 )
 
 __all__ = [
     "Application",
     "ApplicationRepository",
     "ApplicationStatus",
+    "CandidateProfile",
+    "CandidateProfileRepository",
     "Contact",
     "ContactRepository",
     "ContactStatus",
@@ -39,6 +45,8 @@ __all__ = [
     "SCHEMA_COMPONENT",
     "SCHEMA_VERSION",
     "SchemaVersion",
+    "User",
+    "UserRepository",
     "create_db_engine",
     "get_session",
     "init_db",

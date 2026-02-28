@@ -11,7 +11,7 @@ from app.models.tables import SchemaVersion
 DB_PATH = Path("data/app.db")
 DB_URL = f"sqlite:///{DB_PATH.as_posix()}"
 SCHEMA_COMPONENT = "core"
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 
 def create_db_engine(url: str = DB_URL) -> Engine:

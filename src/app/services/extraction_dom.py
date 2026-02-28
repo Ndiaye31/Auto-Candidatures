@@ -6,7 +6,7 @@ from pathlib import Path
 import re
 from typing import Any
 
-import yaml
+from app.services.profile_loader import load_profile_payload
 
 
 @dataclass(slots=True)
@@ -87,11 +87,6 @@ def _normalize_text(value: str | None) -> str:
 def _normalize_token(value: str | None) -> str:
     lowered = _normalize_text(value).lower()
     return lowered.replace("_", " ").replace("-", " ")
-
-
-def _load_profile(profile_path: str | Path) -> dict[str, Any]:
-    with Path(profile_path).open("r", encoding="utf-8") as handle:
-        return yaml.safe_load(handle) or {}
 
 
 def _profile_value(profile: dict[str, Any], canonical_key: str) -> str | None:
@@ -264,10 +259,20 @@ def _match_rule(
     return score, matched_reasons
 
 
-def map_form_fields(html: str, profile_path: str | Path) -> list[FieldCandidate]:
+def map_form_fields(
+    html: str,
+    profile_path: str | Path | None = None,
+    *,
+    profile_yaml: str | None = None,
+    profile_data: dict[str, Any] | None = None,
+) -> list[FieldCandidate]:
     parser = _FormHTMLParser()
     parser.feed(html)
-    profile = _load_profile(profile_path)
+    profile = load_profile_payload(
+        profile_path=profile_path,
+        profile_yaml=profile_yaml,
+        profile_data=profile_data,
+    )
 
     candidates: list[FieldCandidate] = []
     for field in parser.fields:

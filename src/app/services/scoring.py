@@ -5,7 +5,7 @@ from pathlib import Path
 import re
 from typing import Any
 
-import yaml
+from app.services.profile_loader import load_profile_payload
 
 WORD_BOUNDARY_TEMPLATE = r"(?<!\w){term}(?!\w)"
 SENIORITY_ORDER = {
@@ -57,10 +57,17 @@ def _contains_term(text: str, term: str) -> bool:
     return re.search(pattern, text) is not None
 
 
-def load_profile(profile_path: str | Path) -> dict[str, Any]:
-    with Path(profile_path).open("r", encoding="utf-8") as handle:
-        payload = yaml.safe_load(handle) or {}
-    return payload
+def load_profile(
+    profile_path: str | Path | None = None,
+    *,
+    profile_yaml: str | None = None,
+    profile_data: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    return load_profile_payload(
+        profile_path=profile_path,
+        profile_yaml=profile_yaml,
+        profile_data=profile_data,
+    )
 
 
 def _score_keywords(description: str, profile: dict[str, Any]) -> list[ScoreReason]:
@@ -221,8 +228,18 @@ def score_job(description: str, profile: dict[str, Any]) -> ScoreResult:
     return ScoreResult(score=bounded_score, reasons=reasons)
 
 
-def rank_jobs(jobs: list[dict[str, str]], profile_path: str | Path) -> list[RankedJob]:
-    profile = load_profile(profile_path)
+def rank_jobs(
+    jobs: list[dict[str, str]],
+    profile_path: str | Path | None = None,
+    *,
+    profile_yaml: str | None = None,
+    profile_data: dict[str, Any] | None = None,
+) -> list[RankedJob]:
+    profile = load_profile(
+        profile_path,
+        profile_yaml=profile_yaml,
+        profile_data=profile_data,
+    )
     ranked: list[RankedJob] = []
     for job in jobs:
         result = score_job(job.get("description", ""), profile)

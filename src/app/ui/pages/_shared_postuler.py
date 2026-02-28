@@ -11,7 +11,7 @@ from app.services.extraction_dom import CANONICAL_RULES, FieldCandidate, map_for
 from app.ui.components import (
     apply_saved_mapping,
     field_candidates_to_rows,
-    get_default_profile_path,
+    get_active_profile_payload,
     get_domain_key,
     mark_job_applied,
     save_site_mapping,
@@ -65,12 +65,15 @@ def render() -> None:
         st.error("Offre introuvable.")
         return
 
-    profile_path = get_default_profile_path()
-    if profile_path is None:
-        st.error("Aucun profile.yaml disponible pour proposer des valeurs.")
+    with get_session() as session:
+        active_profile, profile_data = get_active_profile_payload(session)
+    if profile_data is None:
+        st.error("Aucun profil disponible pour proposer des valeurs.")
         return
 
     st.subheader(f"{job.title} · {job.company}")
+    if active_profile is not None:
+        st.caption(f"Profil actif: {active_profile.name}")
     domain_key = st.text_input("Site / domaine", value=get_domain_key(job.source_url))
     html = st.text_area(
         "HTML du formulaire",
@@ -101,7 +104,7 @@ def render() -> None:
         st.warning("Le domaine/site doit etre renseigne pour reutiliser le mapping.")
     elif detect_clicked:
         try:
-            detected = map_form_fields(html, Path(profile_path))
+            detected = map_form_fields(html, profile_data=profile_data)
             st.session_state[f"mapping_rows_{job.id}"] = field_candidates_to_rows(
                 apply_saved_mapping(domain_key.strip(), detected)
             )
