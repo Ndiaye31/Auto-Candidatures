@@ -1126,3 +1126,447 @@ Traceback (most recent call last):
     raise NotImplementedError
 NotImplementedError
 2026-02-28 23:29:49,972 | INFO | job_application_assistant.browser_automation | Automation stopped before submit
+2026-02-28 23:33:29,917 | ERROR | job_application_assistant.main | Failed to load jobs
+Traceback (most recent call last):
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\main.py", line 155, in _render_home
+    sync_status, sync_result = sync_jobs_from_default_alerts_excel(
+                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        session,
+        ^^^^^^^^
+        profile_id=profile_id,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 437, in sync_jobs_from_default_alerts_excel
+    result = import_jobs_from_alerts_excel_path(
+        session,
+        status.file_path,
+        profile_id=profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 413, in import_jobs_from_alerts_excel_path
+    created = _ingest_alert_row(
+        session,
+        row,
+        profile_id=effective_profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 278, in _ingest_alert_row
+    raise InvalidJobRowError("Unable to extract a job title from alert row")
+app.services.import_offres.InvalidJobRowError: Unable to extract a job title from alert row
+2026-02-28 23:33:31,009 | ERROR | job_application_assistant.main | Failed to load jobs
+Traceback (most recent call last):
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\main.py", line 155, in _render_home
+    sync_status, sync_result = sync_jobs_from_default_alerts_excel(
+                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        session,
+        ^^^^^^^^
+        profile_id=profile_id,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 437, in sync_jobs_from_default_alerts_excel
+    result = import_jobs_from_alerts_excel_path(
+        session,
+        status.file_path,
+        profile_id=profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 413, in import_jobs_from_alerts_excel_path
+    created = _ingest_alert_row(
+        session,
+        row,
+        profile_id=effective_profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 278, in _ingest_alert_row
+    raise InvalidJobRowError("Unable to extract a job title from alert row")
+app.services.import_offres.InvalidJobRowError: Unable to extract a job title from alert row
+2026-02-28 23:33:31,139 | ERROR | job_application_assistant.main | Failed to load jobs
+Traceback (most recent call last):
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\main.py", line 155, in _render_home
+    sync_status, sync_result = sync_jobs_from_default_alerts_excel(
+                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        session,
+        ^^^^^^^^
+        profile_id=profile_id,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 437, in sync_jobs_from_default_alerts_excel
+    result = import_jobs_from_alerts_excel_path(
+        session,
+        status.file_path,
+        profile_id=profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 413, in import_jobs_from_alerts_excel_path
+    created = _ingest_alert_row(
+        session,
+        row,
+        profile_id=effective_profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 278, in _ingest_alert_row
+    raise InvalidJobRowError("Unable to extract a job title from alert row")
+app.services.import_offres.InvalidJobRowError: Unable to extract a job title from alert row
+2026-02-28 23:33:31,727 | ERROR | job_application_assistant.main | Failed to load jobs
+Traceback (most recent call last):
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\main.py", line 155, in _render_home
+    sync_status, sync_result = sync_jobs_from_default_alerts_excel(
+                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        session,
+        ^^^^^^^^
+        profile_id=profile_id,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 437, in sync_jobs_from_default_alerts_excel
+    result = import_jobs_from_alerts_excel_path(
+        session,
+        status.file_path,
+        profile_id=profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 413, in import_jobs_from_alerts_excel_path
+    created = _ingest_alert_row(
+        session,
+        row,
+        profile_id=effective_profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 278, in _ingest_alert_row
+    raise InvalidJobRowError("Unable to extract a job title from alert row")
+app.services.import_offres.InvalidJobRowError: Unable to extract a job title from alert row
+2026-02-28 23:33:41,565 | ERROR | job_application_assistant.main | Failed to load jobs
+Traceback (most recent call last):
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\main.py", line 155, in _render_home
+    sync_status, sync_result = sync_jobs_from_default_alerts_excel(
+                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        session,
+        ^^^^^^^^
+        profile_id=profile_id,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 437, in sync_jobs_from_default_alerts_excel
+    result = import_jobs_from_alerts_excel_path(
+        session,
+        status.file_path,
+        profile_id=profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 413, in import_jobs_from_alerts_excel_path
+    created = _ingest_alert_row(
+        session,
+        row,
+        profile_id=effective_profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 278, in _ingest_alert_row
+    raise InvalidJobRowError("Unable to extract a job title from alert row")
+app.services.import_offres.InvalidJobRowError: Unable to extract a job title from alert row
+2026-02-28 23:33:56,004 | ERROR | job_application_assistant.main | Failed to load jobs
+Traceback (most recent call last):
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\main.py", line 155, in _render_home
+    sync_status, sync_result = sync_jobs_from_default_alerts_excel(
+                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        session,
+        ^^^^^^^^
+        profile_id=profile_id,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 437, in sync_jobs_from_default_alerts_excel
+    result = import_jobs_from_alerts_excel_path(
+        session,
+        status.file_path,
+        profile_id=profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 413, in import_jobs_from_alerts_excel_path
+    created = _ingest_alert_row(
+        session,
+        row,
+        profile_id=effective_profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 278, in _ingest_alert_row
+    raise InvalidJobRowError("Unable to extract a job title from alert row")
+app.services.import_offres.InvalidJobRowError: Unable to extract a job title from alert row
+2026-02-28 23:34:00,203 | ERROR | job_application_assistant.main | Failed to load jobs
+Traceback (most recent call last):
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\main.py", line 155, in _render_home
+    sync_status, sync_result = sync_jobs_from_default_alerts_excel(
+                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        session,
+        ^^^^^^^^
+        profile_id=profile_id,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 437, in sync_jobs_from_default_alerts_excel
+    result = import_jobs_from_alerts_excel_path(
+        session,
+        status.file_path,
+        profile_id=profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 413, in import_jobs_from_alerts_excel_path
+    created = _ingest_alert_row(
+        session,
+        row,
+        profile_id=effective_profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 278, in _ingest_alert_row
+    raise InvalidJobRowError("Unable to extract a job title from alert row")
+app.services.import_offres.InvalidJobRowError: Unable to extract a job title from alert row
+2026-02-28 23:34:06,715 | ERROR | job_application_assistant.main | Failed to load jobs
+Traceback (most recent call last):
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\main.py", line 155, in _render_home
+    sync_status, sync_result = sync_jobs_from_default_alerts_excel(
+                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        session,
+        ^^^^^^^^
+        profile_id=profile_id,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 437, in sync_jobs_from_default_alerts_excel
+    result = import_jobs_from_alerts_excel_path(
+        session,
+        status.file_path,
+        profile_id=profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 413, in import_jobs_from_alerts_excel_path
+    created = _ingest_alert_row(
+        session,
+        row,
+        profile_id=effective_profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 278, in _ingest_alert_row
+    raise InvalidJobRowError("Unable to extract a job title from alert row")
+app.services.import_offres.InvalidJobRowError: Unable to extract a job title from alert row
+2026-02-28 23:34:07,627 | ERROR | job_application_assistant.main | Failed to load jobs
+Traceback (most recent call last):
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\main.py", line 155, in _render_home
+    sync_status, sync_result = sync_jobs_from_default_alerts_excel(
+                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        session,
+        ^^^^^^^^
+        profile_id=profile_id,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 437, in sync_jobs_from_default_alerts_excel
+    result = import_jobs_from_alerts_excel_path(
+        session,
+        status.file_path,
+        profile_id=profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 413, in import_jobs_from_alerts_excel_path
+    created = _ingest_alert_row(
+        session,
+        row,
+        profile_id=effective_profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 278, in _ingest_alert_row
+    raise InvalidJobRowError("Unable to extract a job title from alert row")
+app.services.import_offres.InvalidJobRowError: Unable to extract a job title from alert row
+2026-02-28 23:34:09,478 | ERROR | job_application_assistant.main | Failed to load jobs
+Traceback (most recent call last):
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\main.py", line 155, in _render_home
+    sync_status, sync_result = sync_jobs_from_default_alerts_excel(
+                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        session,
+        ^^^^^^^^
+        profile_id=profile_id,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 437, in sync_jobs_from_default_alerts_excel
+    result = import_jobs_from_alerts_excel_path(
+        session,
+        status.file_path,
+        profile_id=profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 413, in import_jobs_from_alerts_excel_path
+    created = _ingest_alert_row(
+        session,
+        row,
+        profile_id=effective_profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 278, in _ingest_alert_row
+    raise InvalidJobRowError("Unable to extract a job title from alert row")
+app.services.import_offres.InvalidJobRowError: Unable to extract a job title from alert row
+2026-02-28 23:34:10,471 | ERROR | job_application_assistant.main | Failed to load jobs
+Traceback (most recent call last):
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\main.py", line 155, in _render_home
+    sync_status, sync_result = sync_jobs_from_default_alerts_excel(
+                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        session,
+        ^^^^^^^^
+        profile_id=profile_id,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 437, in sync_jobs_from_default_alerts_excel
+    result = import_jobs_from_alerts_excel_path(
+        session,
+        status.file_path,
+        profile_id=profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 413, in import_jobs_from_alerts_excel_path
+    created = _ingest_alert_row(
+        session,
+        row,
+        profile_id=effective_profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 278, in _ingest_alert_row
+    raise InvalidJobRowError("Unable to extract a job title from alert row")
+app.services.import_offres.InvalidJobRowError: Unable to extract a job title from alert row
+2026-02-28 23:34:15,690 | ERROR | job_application_assistant.main | Failed to load jobs
+Traceback (most recent call last):
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\main.py", line 155, in _render_home
+    sync_status, sync_result = sync_jobs_from_default_alerts_excel(
+                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        session,
+        ^^^^^^^^
+        profile_id=profile_id,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 437, in sync_jobs_from_default_alerts_excel
+    result = import_jobs_from_alerts_excel_path(
+        session,
+        status.file_path,
+        profile_id=profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 413, in import_jobs_from_alerts_excel_path
+    created = _ingest_alert_row(
+        session,
+        row,
+        profile_id=effective_profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 278, in _ingest_alert_row
+    raise InvalidJobRowError("Unable to extract a job title from alert row")
+app.services.import_offres.InvalidJobRowError: Unable to extract a job title from alert row
+2026-02-28 23:34:17,656 | ERROR | job_application_assistant.main | Failed to load jobs
+Traceback (most recent call last):
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\main.py", line 155, in _render_home
+    sync_status, sync_result = sync_jobs_from_default_alerts_excel(
+                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        session,
+        ^^^^^^^^
+        profile_id=profile_id,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 437, in sync_jobs_from_default_alerts_excel
+    result = import_jobs_from_alerts_excel_path(
+        session,
+        status.file_path,
+        profile_id=profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 413, in import_jobs_from_alerts_excel_path
+    created = _ingest_alert_row(
+        session,
+        row,
+        profile_id=effective_profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 278, in _ingest_alert_row
+    raise InvalidJobRowError("Unable to extract a job title from alert row")
+app.services.import_offres.InvalidJobRowError: Unable to extract a job title from alert row
+2026-02-28 23:34:19,766 | ERROR | job_application_assistant.main | Failed to load jobs
+Traceback (most recent call last):
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\main.py", line 155, in _render_home
+    sync_status, sync_result = sync_jobs_from_default_alerts_excel(
+                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        session,
+        ^^^^^^^^
+        profile_id=profile_id,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 437, in sync_jobs_from_default_alerts_excel
+    result = import_jobs_from_alerts_excel_path(
+        session,
+        status.file_path,
+        profile_id=profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 413, in import_jobs_from_alerts_excel_path
+    created = _ingest_alert_row(
+        session,
+        row,
+        profile_id=effective_profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 278, in _ingest_alert_row
+    raise InvalidJobRowError("Unable to extract a job title from alert row")
+app.services.import_offres.InvalidJobRowError: Unable to extract a job title from alert row
+2026-02-28 23:34:21,056 | ERROR | job_application_assistant.main | Failed to load jobs
+Traceback (most recent call last):
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\main.py", line 155, in _render_home
+    sync_status, sync_result = sync_jobs_from_default_alerts_excel(
+                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        session,
+        ^^^^^^^^
+        profile_id=profile_id,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 437, in sync_jobs_from_default_alerts_excel
+    result = import_jobs_from_alerts_excel_path(
+        session,
+        status.file_path,
+        profile_id=profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 413, in import_jobs_from_alerts_excel_path
+    created = _ingest_alert_row(
+        session,
+        row,
+        profile_id=effective_profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 278, in _ingest_alert_row
+    raise InvalidJobRowError("Unable to extract a job title from alert row")
+app.services.import_offres.InvalidJobRowError: Unable to extract a job title from alert row
+2026-02-28 23:34:23,961 | ERROR | job_application_assistant.main | Failed to load jobs
+Traceback (most recent call last):
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\main.py", line 155, in _render_home
+    sync_status, sync_result = sync_jobs_from_default_alerts_excel(
+                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        session,
+        ^^^^^^^^
+        profile_id=profile_id,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 437, in sync_jobs_from_default_alerts_excel
+    result = import_jobs_from_alerts_excel_path(
+        session,
+        status.file_path,
+        profile_id=profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 413, in import_jobs_from_alerts_excel_path
+    created = _ingest_alert_row(
+        session,
+        row,
+        profile_id=effective_profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 278, in _ingest_alert_row
+    raise InvalidJobRowError("Unable to extract a job title from alert row")
+app.services.import_offres.InvalidJobRowError: Unable to extract a job title from alert row
+2026-02-28 23:34:25,788 | ERROR | job_application_assistant.main | Failed to load jobs
+Traceback (most recent call last):
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\main.py", line 155, in _render_home
+    sync_status, sync_result = sync_jobs_from_default_alerts_excel(
+                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        session,
+        ^^^^^^^^
+        profile_id=profile_id,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 437, in sync_jobs_from_default_alerts_excel
+    result = import_jobs_from_alerts_excel_path(
+        session,
+        status.file_path,
+        profile_id=profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 413, in import_jobs_from_alerts_excel_path
+    created = _ingest_alert_row(
+        session,
+        row,
+        profile_id=effective_profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 278, in _ingest_alert_row
+    raise InvalidJobRowError("Unable to extract a job title from alert row")
+app.services.import_offres.InvalidJobRowError: Unable to extract a job title from alert row
+2026-02-28 23:38:28,724 | INFO | job_application_assistant.browser_automation | Automation stopped before submit
+2026-02-28 23:38:30,427 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row

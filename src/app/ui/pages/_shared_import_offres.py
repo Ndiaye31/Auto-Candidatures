@@ -39,7 +39,7 @@ def _render_csv_import() -> None:
             st.error(str(exc))
         else:
             st.success(
-                f"Import terminé: {result.created} créées, {result.skipped} ignorées."
+                f"Import terminé: {result.created} créées, {result.skipped} ignorées, {result.errors} en erreur."
             )
 
 
@@ -76,7 +76,7 @@ def _render_excel_alerts_import() -> None:
                 st.info("Aucun changement detecte dans le fichier surveille.")
             else:
                 st.success(
-                    f"Synchronisation terminee: {result.created} créées, {result.skipped} ignorées."
+                    f"Synchronisation terminee: {result.created} créées, {result.skipped} ignorées, {result.errors} en erreur."
                 )
                 if profile_id is not None:
                     st.caption("Le workflow ATS du profil actif a aussi été enrichi.")
@@ -115,7 +115,7 @@ def _render_excel_alerts_import() -> None:
             st.exception(exc)
         else:
             st.success(
-                f"Import Excel terminé: {result.created} créées, {result.skipped} ignorées."
+                f"Import Excel terminé: {result.created} créées, {result.skipped} ignorées, {result.errors} en erreur."
             )
             if profile_id is not None:
                 st.caption("Le workflow ATS du profil actif a aussi été enrichi.")

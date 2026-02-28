@@ -117,6 +117,7 @@ def test_import_jobs_from_alerts_excel_maps_and_deduplicates_rows(tmp_path: Path
     assert application is not None
     assert application.application_channel == "indeed_easy_apply"
     assert application.stage == ApplicationStage.APPLIED
+    assert result.errors == 0
 
 
 def test_sync_jobs_from_default_alerts_excel_tracks_file_changes(tmp_path: Path) -> None:
@@ -168,6 +169,54 @@ def test_sync_jobs_from_default_alerts_excel_tracks_file_changes(tmp_path: Path)
     assert status_before.changed is True
     assert result_first is not None
     assert result_first.created == 1
+    assert result_first.errors == 0
     assert status_after.changed is False
     assert result_second is None
     assert status_final.changed is False
+
+
+def test_import_jobs_from_alerts_excel_skips_invalid_rows_without_crashing(tmp_path: Path) -> None:
+    engine = create_db_engine("sqlite://")
+    init_db(engine)
+    excel_path = tmp_path / "job_offers.xlsx"
+    dataframe = pd.DataFrame(
+        [
+            {
+                "ID (jk)": "ok1",
+                "Titre du poste": "Data Analyst H/F NOVEOCARE 2.7 Chartres (28) Candidature simplifiée",
+                "URL de l'offre": "https://fr.indeed.com/viewjob?jk=ok1",
+                "Description": "Data Analyst H/F Chartres (28) Candidature simplifiée Analyse de données",
+                "Source": "Scrapper offres Indeed",
+                "Date email": "Tue, 17 Feb 2026 01:06:03 +0000",
+                "Sujet email": "Alerte Indeed",
+                "Expéditeur": "\"Indeed\" <donotreply@jobalert.indeed.com>",
+                "Statut": None,
+                "Type Candidature": "Easy candidature",
+                "Notes": "",
+            },
+            {
+                "ID (jk)": "bad1",
+                "Titre du poste": None,
+                "URL de l'offre": "https://fr.indeed.com/viewjob?jk=bad1",
+                "Description": None,
+                "Source": "Scrapper offres Indeed",
+                "Date email": "Tue, 17 Feb 2026 01:06:03 +0000",
+                "Sujet email": "Alerte Indeed",
+                "Expéditeur": "\"Indeed\" <donotreply@jobalert.indeed.com>",
+                "Statut": None,
+                "Type Candidature": "Easy candidature",
+                "Notes": "",
+            },
+        ]
+    )
+    dataframe.to_excel(excel_path, index=False)
+
+    with Session(engine) as session:
+        profile = ensure_default_profile(session)
+        result = import_jobs_from_alerts_excel_path(session, excel_path, profile_id=profile.id)
+        jobs = JobRepository(session).list()
+
+    assert result.created == 1
+    assert result.skipped == 0
+    assert result.errors == 1
+    assert len(jobs) == 1

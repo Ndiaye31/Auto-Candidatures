@@ -173,7 +173,7 @@ def _render_home() -> None:
             st.sidebar.success(f"Profil fichier charge: {profile_path}")
     if sync_result is not None:
         st.sidebar.caption(
-            f"Sync alertes: {sync_result.created} nouvelles, {sync_result.skipped} ignorees"
+            f"Sync alertes: {sync_result.created} nouvelles, {sync_result.skipped} ignorees, {sync_result.errors} erreurs"
         )
     elif sync_status.exists:
         st.sidebar.caption("Sync alertes: aucune modification detectee")

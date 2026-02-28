@@ -18,6 +18,7 @@ from app.services.ats import (
     ensure_application,
     update_application_stage,
 )
+from app.utils.logging import get_logger
 
 CSV_COLUMNS = ("title", "company", "location", "url", "description", "source")
 DEFAULT_ALERTS_EXCEL_PATH = Path("data/job_offers.xlsx")
@@ -35,6 +36,7 @@ EXCEL_ALERT_COLUMNS = (
     "Type Candidature",
     "Notes",
 )
+LOGGER = get_logger("import_offres")
 
 
 class InvalidJobRowError(ValueError):
@@ -45,6 +47,7 @@ class InvalidJobRowError(ValueError):
 class ImportResult:
     created: int = 0
     skipped: int = 0
+    errors: int = 0
 
 
 @dataclass(slots=True)
@@ -225,6 +228,10 @@ def _parse_title_company_location(
     company = _compact_spaces(company)
     if company is not None:
         company = re.sub(r"\s+\d+(?:[.,]\d+)?$", "", company).strip() or None
+    if (not title) and left:
+        fallback = left.split()
+        if fallback:
+            title = " ".join(fallback[: min(4, len(fallback))]).strip()
     if company is None and description_source:
         company = "Entreprise non extraite"
     return title, company, location
@@ -409,12 +416,24 @@ def import_jobs_from_alerts_excel_path(
         effective_profile_id = default_profile.id if default_profile else None
 
     result = ImportResult()
-    for row in dataframe.to_dict(orient="records"):
-        created = _ingest_alert_row(
-            session,
-            row,
-            profile_id=effective_profile_id,
-        )
+    for row_index, row in enumerate(dataframe.to_dict(orient="records"), start=2):
+        try:
+            created = _ingest_alert_row(
+                session,
+                row,
+                profile_id=effective_profile_id,
+            )
+        except InvalidJobRowError:
+            result.errors += 1
+            LOGGER.warning(
+                "Skipping invalid alerts row",
+                extra={
+                    "row_index": row_index,
+                    "url": _coerce_cell(row.get("URL de l'offre")),
+                    "title": _coerce_cell(row.get("Titre du poste")),
+                },
+            )
+            continue
         if created:
             result.created += 1
         else:
