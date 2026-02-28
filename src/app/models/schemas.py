@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from app.models.tables import (
     ApplicationStatus,
     ApplicationStage,
+    AtsDomainStat,
     CandidateProfile,
     ContactStatus,
     EventStatus,
@@ -20,6 +21,8 @@ class JobCreate(BaseModel):
     company: str
     location: str | None = None
     source_url: str | None = None
+    application_target_url: str | None = None
+    application_target_domain: str | None = None
     source: str | None = None
     description: str | None = None
     status: JobStatus = JobStatus.NEW
@@ -82,4 +85,20 @@ class CandidateProfileView(BaseModel):
             slug=profile.slug,
             profile_yaml=profile.profile_yaml,
             is_default=profile.is_default,
+        )
+
+
+class AtsDomainStatView(BaseModel):
+    domain: str
+    connector_key: str
+    seen_count: int
+    sample_url: str | None = None
+
+    @classmethod
+    def from_model(cls, stat: AtsDomainStat) -> "AtsDomainStatView":
+        return cls(
+            domain=stat.domain,
+            connector_key=stat.connector_key,
+            seen_count=stat.seen_count,
+            sample_url=stat.sample_url,
         )

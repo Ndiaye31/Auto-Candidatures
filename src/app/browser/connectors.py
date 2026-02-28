@@ -69,9 +69,67 @@ HELLOWORK_CONNECTOR = SiteConnector(
     apply_texts=("Postuler", "Candidater", "Je postule"),
 )
 
+WORKDAY_CONNECTOR = SiteConnector(
+    key="workday",
+    label="Workday",
+    domains=("myworkdayjobs.com", "workday.com"),
+    apply_selectors=(
+        "a[href*='myworkdayjobs.com']",
+        "button[data-automation-id='applyButton']",
+        "a[data-automation-id='applyButton']",
+        "button:has-text('Apply')",
+        "a:has-text('Apply')",
+    ),
+    apply_texts=("Apply", "Apply Now", "Postuler"),
+)
+
+GREENHOUSE_CONNECTOR = SiteConnector(
+    key="greenhouse",
+    label="Greenhouse",
+    domains=("greenhouse.io", "boards.greenhouse.io", "job-boards.greenhouse.io"),
+    apply_selectors=(
+        "#application_button",
+        "a[href*='greenhouse.io']",
+        "button:has-text('Apply for this job')",
+        "a:has-text('Apply for this job')",
+        "button:has-text('Postuler')",
+    ),
+    apply_texts=("Apply for this job", "Apply", "Postuler"),
+)
+
+LEVER_CONNECTOR = SiteConnector(
+    key="lever",
+    label="Lever",
+    domains=("lever.co", "jobs.lever.co"),
+    apply_selectors=(
+        ".postings-btn-wrapper a",
+        "a[href*='jobs.lever.co']",
+        "button:has-text('Apply')",
+        "a:has-text('Apply')",
+    ),
+    apply_texts=("Apply", "Apply for this job", "Postuler"),
+)
+
+SMARTRECRUITERS_CONNECTOR = SiteConnector(
+    key="smartrecruiters",
+    label="SmartRecruiters",
+    domains=("smartrecruiters.com", "jobs.smartrecruiters.com"),
+    apply_selectors=(
+        "a[href*='smartrecruiters.com']",
+        "button:has-text('Apply')",
+        "a:has-text('Apply')",
+        "button:has-text('Postuler')",
+    ),
+    apply_texts=("Apply", "Apply Now", "Postuler"),
+)
+
 SUPPORTED_CONNECTORS = (
     INDEED_CONNECTOR,
     HELLOWORK_CONNECTOR,
+    WORKDAY_CONNECTOR,
+    GREENHOUSE_CONNECTOR,
+    LEVER_CONNECTOR,
+    SMARTRECRUITERS_CONNECTOR,
 )
 
 
@@ -79,6 +137,8 @@ def detect_connector(url: str | None) -> SiteConnector:
     if not url:
         return GENERIC_CONNECTOR
     hostname = urlparse(url).netloc.lower()
+    if hostname.startswith("www."):
+        hostname = hostname[4:]
     for connector in SUPPORTED_CONNECTORS:
         if any(hostname.endswith(domain) for domain in connector.domains):
             return connector
@@ -89,6 +149,8 @@ def resolve_connector(
     *,
     url: str | None,
     application_channel: str | None = None,
+    target_url: str | None = None,
+    target_domain: str | None = None,
 ) -> SiteConnector:
     normalized_channel = (application_channel or "").strip().lower()
     if normalized_channel == "indeed_easy_apply":
@@ -96,6 +158,14 @@ def resolve_connector(
     if normalized_channel == "hellowork_easy_apply":
         return HELLOWORK_CONNECTOR
     if normalized_channel.endswith("_external") or normalized_channel == "external_ats":
+        if target_url:
+            resolved = detect_connector(target_url)
+            if resolved is not GENERIC_CONNECTOR:
+                return resolved
+        if target_domain:
+            resolved = detect_connector(f"https://{target_domain}")
+            if resolved is not GENERIC_CONNECTOR:
+                return resolved
         return GENERIC_CONNECTOR
     return detect_connector(url)
 

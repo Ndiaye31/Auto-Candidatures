@@ -8,6 +8,7 @@ from sqlmodel import Session, SQLModel, select
 from app.models.tables import (
     Application,
     ApplicationStage,
+    AtsDomainStat,
     CandidateProfile,
     Contact,
     Event,
@@ -72,6 +73,12 @@ class JobRepository(SQLModelRepository[Job]):
     def get_by_source_url(self, source_url: str) -> Job | None:
         statement = select(Job).where(Job.source_url == source_url)
         return self.session.exec(statement).first()
+
+    def list_by_target_domain(self, domain: str) -> list[Job]:
+        statement = select(Job).where(Job.application_target_domain == domain).order_by(
+            Job.updated_at.desc()
+        )
+        return list(self.session.exec(statement))
 
 
 class CandidateProfileRepository(SQLModelRepository[CandidateProfile]):
@@ -154,4 +161,20 @@ class EventRepository(SQLModelRepository[Event]):
         statement = select(Event).where(
             Event.application_id == application_id
         ).order_by(Event.event_at.desc(), Event.id.desc())
+        return list(self.session.exec(statement))
+
+
+class AtsDomainStatRepository(SQLModelRepository[AtsDomainStat]):
+    model = AtsDomainStat
+
+    def get_by_domain(self, domain: str) -> AtsDomainStat | None:
+        statement = select(AtsDomainStat).where(AtsDomainStat.domain == domain)
+        return self.session.exec(statement).first()
+
+    def list_top(self, limit: int = 10) -> list[AtsDomainStat]:
+        statement = (
+            select(AtsDomainStat)
+            .order_by(AtsDomainStat.seen_count.desc(), AtsDomainStat.last_seen_at.desc())
+            .limit(limit)
+        )
         return list(self.session.exec(statement))

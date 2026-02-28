@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 from app.browser.connectors import GENERIC_CONNECTOR, SiteConnector, detect_connector
 from app.services.browser_automation import BrowserStepAdapter, run_multi_step_assisted_flow
@@ -100,6 +101,9 @@ class PlaywrightFlowResult:
     apply_click_selector: str | None
     automation_run: Any
     snapshot_path: Path | None
+    resolved_url: str
+    resolved_domain: str | None
+    resolved_connector: str
 
 
 def run_playwright_multi_step_flow(
@@ -132,6 +136,11 @@ def run_playwright_multi_step_flow(
             profile_yaml=profile_yaml,
             profile_data=profile_data,
         )
+        resolved_url = str(page.url)
+        resolved_domain = urlparse(resolved_url).netloc.lower() or None
+        if resolved_domain and resolved_domain.startswith("www."):
+            resolved_domain = resolved_domain[4:]
+        resolved_connector = detect_connector(resolved_url).key
         snapshot_path = None
         if result.steps:
             final_html = result.steps[-1].snapshot.html
@@ -143,4 +152,7 @@ def run_playwright_multi_step_flow(
             apply_click_selector=clicked_apply_selector,
             automation_run=result,
             snapshot_path=snapshot_path,
+            resolved_url=resolved_url,
+            resolved_domain=resolved_domain,
+            resolved_connector=resolved_connector,
         )

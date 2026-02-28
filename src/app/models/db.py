@@ -12,7 +12,7 @@ from app.models.tables import SchemaVersion
 DB_PATH = Path("data/app.db")
 DB_URL = f"sqlite:///{DB_PATH.as_posix()}"
 SCHEMA_COMPONENT = "core"
-SCHEMA_VERSION = 5
+SCHEMA_VERSION = 6
 
 
 def create_db_engine(url: str = DB_URL) -> Engine:
@@ -54,6 +54,9 @@ def _run_basic_migrations(active_engine: Engine) -> None:
     if "events" in tables:
         _add_column_if_missing(active_engine, "events", "note TEXT")
         _add_column_if_missing(active_engine, "events", "event_at TIMESTAMP")
+    if "jobs" in tables:
+        _add_column_if_missing(active_engine, "jobs", "application_target_url TEXT")
+        _add_column_if_missing(active_engine, "jobs", "application_target_domain TEXT")
 
 
 def init_db(db_engine: Engine | None = None) -> SchemaVersion:

@@ -88,6 +88,8 @@ class Job(SQLModel, table=True):
         default=None,
         sa_column=Column("source_url", String, unique=True, nullable=True),
     )
+    application_target_url: str | None = None
+    application_target_domain: str | None = Field(default=None, index=True)
     source: str | None = None
     description: str | None = None
     status: JobStatus = Field(default=JobStatus.NEW, index=True)
@@ -151,3 +153,16 @@ class Event(SQLModel, table=True):
     payload: dict[str, Any] | None = Field(default=None, sa_column=Column(JSON))
     event_at: datetime = Field(default_factory=utcnow, nullable=False)
     created_at: datetime = Field(default_factory=utcnow, nullable=False)
+
+
+class AtsDomainStat(SQLModel, table=True):
+    __tablename__ = "ats_domain_stats"
+
+    id: int | None = Field(default=None, primary_key=True)
+    domain: str = Field(index=True, unique=True)
+    connector_key: str = Field(index=True)
+    seen_count: int = Field(default=1, nullable=False)
+    sample_url: str | None = None
+    last_seen_at: datetime = Field(default_factory=utcnow, nullable=False)
+    created_at: datetime = Field(default_factory=utcnow, nullable=False)
+    updated_at: datetime = Field(default_factory=utcnow, nullable=False)

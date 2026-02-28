@@ -14,6 +14,11 @@ from app.models.db import get_session
 from app.models.repositories import ApplicationRepository, JobRepository
 from app.models.tables import ApplicationStage
 from app.services.ats import update_application_stage
+from app.services.ats_learning import (
+    list_top_external_ats,
+    record_external_ats_domain,
+    should_record_external_domain,
+)
 from app.services.extraction_dom import CANONICAL_RULES, FieldCandidate, map_form_fields
 from app.ui.components import (
     apply_saved_mapping,
@@ -92,6 +97,8 @@ def render() -> None:
     connector = resolve_connector(
         url=job.source_url,
         application_channel=(application.application_channel if application is not None else None),
+        target_url=job.application_target_url,
+        target_domain=job.application_target_domain,
     )
     channel_label = describe_application_channel(
         application.application_channel if application is not None else None
@@ -163,10 +170,37 @@ def render() -> None:
                 st.error("Navigation assistee impossible.")
                 st.exception(exc)
             else:
+                should_record_target = should_record_external_domain(
+                    source_url=job.source_url,
+                    target_url=runtime_result.resolved_url,
+                    application_channel=(
+                        application.application_channel if application is not None else None
+                    ),
+                )
+                try:
+                    with get_session() as session:
+                        JobRepository(session).update(
+                            job.id,
+                            application_target_url=runtime_result.resolved_url,
+                            application_target_domain=runtime_result.resolved_domain,
+                        )
+                        if should_record_target:
+                            record_external_ats_domain(
+                                session,
+                                target_url=runtime_result.resolved_url,
+                            )
+                except Exception:
+                    LOGGER.exception(
+                        "Failed to persist resolved target domain",
+                        extra={"job_id": job.id},
+                    )
                 st.session_state[f"browser_run_{job.id}"] = {
                     "connector": runtime_result.connector,
+                    "resolved_connector": runtime_result.resolved_connector,
                     "apply_click_selector": runtime_result.apply_click_selector,
                     "stop_reason": runtime_result.automation_run.stop_reason,
+                    "resolved_url": runtime_result.resolved_url,
+                    "resolved_domain": runtime_result.resolved_domain,
                     "snapshot_path": (
                         str(runtime_result.snapshot_path)
                         if runtime_result.snapshot_path is not None
@@ -191,11 +225,37 @@ def render() -> None:
         st.caption(
             f"Connecteur: {browser_run['connector']} | stop: {browser_run['stop_reason']}"
         )
+        if browser_run["resolved_domain"]:
+            st.caption(
+                "Domaine atteint: "
+                f"{browser_run['resolved_domain']} "
+                f"({browser_run['resolved_connector']})"
+            )
+        if browser_run["resolved_url"]:
+            st.caption(f"URL atteinte: {browser_run['resolved_url']}")
         if browser_run["apply_click_selector"]:
             st.caption(f"Bouton d'entree clique: {browser_run['apply_click_selector']}")
         if browser_run["snapshot_path"]:
             st.caption(f"Snapshot HTML: {browser_run['snapshot_path']}")
         st.dataframe(browser_run["steps"], use_container_width=True, hide_index=True)
+
+    with get_session() as session:
+        top_external_ats = list_top_external_ats(session, limit=5)
+    if top_external_ats:
+        st.caption("ATS externes les plus frequents")
+        st.dataframe(
+            [
+                {
+                    "domain": stat.domain,
+                    "connector": stat.connector_key,
+                    "seen_count": stat.seen_count,
+                    "sample_url": stat.sample_url,
+                }
+                for stat in top_external_ats
+            ],
+            use_container_width=True,
+            hide_index=True,
+        )
 
     detect_clicked = st.button("Detecter les champs", type="primary")
     if detect_clicked and not html.strip():

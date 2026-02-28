@@ -2790,3 +2790,6 @@ Traceback (most recent call last):
 playwright._impl._errors.Error: Page.content: Unable to retrieve content because the page is navigating and changing the content.
 2026-03-01 00:14:40,772 | INFO | job_application_assistant.browser_automation | Automation stopped before submit
 2026-03-01 00:14:42,826 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-03-01 00:19:35,470 | INFO | job_application_assistant.browser_automation | Automation stopped before submit
+2026-03-01 00:28:19,769 | INFO | job_application_assistant.browser_automation | Automation stopped before submit
+2026-03-01 00:28:22,081 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
