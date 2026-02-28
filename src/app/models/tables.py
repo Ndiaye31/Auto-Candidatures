@@ -105,6 +105,7 @@ class Application(SQLModel, table=True):
     )
     cover_letter_path: str | None = None
     resume_path: str | None = None
+    application_channel: str | None = None
     status: ApplicationStatus = Field(default=ApplicationStatus.DRAFT, index=True)
     stage: ApplicationStage = Field(default=ApplicationStage.SOURCED, index=True)
     submitted_at: datetime | None = None

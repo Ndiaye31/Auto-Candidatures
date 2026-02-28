@@ -63,6 +63,7 @@ def ensure_application(
     *,
     job_id: int,
     profile_id: int | None,
+    application_channel: str | None = None,
 ) -> Application:
     jobs = JobRepository(session)
     job = jobs.get(job_id)
@@ -78,6 +79,7 @@ def ensure_application(
         Application(
             job_id=job_id,
             profile_id=profile_id,
+            application_channel=application_channel,
             status=ApplicationStatus.DRAFT,
             stage=ApplicationStage.SOURCED,
         )

@@ -30,6 +30,7 @@ class ApplicationCreate(BaseModel):
     profile_id: int | None = None
     cover_letter_path: str | None = None
     resume_path: str | None = None
+    application_channel: str | None = None
     status: ApplicationStatus = ApplicationStatus.DRAFT
     stage: ApplicationStage = ApplicationStage.SOURCED
     submitted_at: datetime | None = None

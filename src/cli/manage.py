@@ -5,7 +5,12 @@ from pathlib import Path
 import sys
 
 from app.models.db import get_session, init_db
-from app.services.import_offres import InvalidJobRowError, add_job, import_jobs_from_csv_path
+from app.services.import_offres import (
+    InvalidJobRowError,
+    add_job,
+    import_jobs_from_alerts_excel_path,
+    import_jobs_from_csv_path,
+)
 from app.services.profiles import ProfileError, create_profile, ensure_default_profile
 
 
@@ -18,6 +23,9 @@ def _build_parser() -> argparse.ArgumentParser:
 
     csv_parser = ingest_subparsers.add_parser("csv")
     csv_parser.add_argument("csv_path")
+
+    excel_parser = ingest_subparsers.add_parser("excel-alerts")
+    excel_parser.add_argument("excel_path")
 
     add_parser = ingest_subparsers.add_parser("add")
     add_parser.add_argument("--title", required=True)
@@ -51,6 +59,14 @@ def _run_ingest_csv(csv_path: str) -> None:
     with get_session() as session:
         result = import_jobs_from_csv_path(session, csv_path)
     print(f"Import terminé: {result.created} créées, {result.skipped} ignorées.")
+
+
+def _run_ingest_excel_alerts(excel_path: str) -> None:
+    init_db()
+    with get_session() as session:
+        ensure_default_profile(session)
+        result = import_jobs_from_alerts_excel_path(session, excel_path)
+    print(f"Import Excel terminé: {result.created} créées, {result.skipped} ignorées.")
 
 
 def _run_ingest_add(args: argparse.Namespace) -> None:
@@ -92,6 +108,9 @@ def main() -> None:
     try:
         if args.command == "ingest" and args.ingest_command == "csv":
             _run_ingest_csv(args.csv_path)
+            return
+        if args.command == "ingest" and args.ingest_command == "excel-alerts":
+            _run_ingest_excel_alerts(args.excel_path)
             return
         if args.command == "ingest" and args.ingest_command == "add":
             _run_ingest_add(args)

@@ -12,7 +12,7 @@ from app.models.tables import SchemaVersion
 DB_PATH = Path("data/app.db")
 DB_URL = f"sqlite:///{DB_PATH.as_posix()}"
 SCHEMA_COMPONENT = "core"
-SCHEMA_VERSION = 4
+SCHEMA_VERSION = 5
 
 
 def create_db_engine(url: str = DB_URL) -> Engine:
@@ -44,6 +44,7 @@ def _run_basic_migrations(active_engine: Engine) -> None:
     inspector = inspect(active_engine)
     tables = set(inspector.get_table_names())
     if "applications" in tables:
+        _add_column_if_missing(active_engine, "applications", "application_channel TEXT")
         _add_column_if_missing(active_engine, "applications", "stage TEXT")
         _add_column_if_missing(active_engine, "applications", "last_event_at TIMESTAMP")
         _add_column_if_missing(active_engine, "applications", "next_step TEXT")
