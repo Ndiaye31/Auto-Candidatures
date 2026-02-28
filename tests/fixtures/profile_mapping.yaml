@@ -1,0 +1,12 @@
+identity:
+  full_name: Claire Martin
+  email: claire.martin@example.com
+  phone: "0601020304"
+  city: Lyon
+urls:
+  linkedin: https://www.linkedin.com/in/claire-martin
+  github: https://github.com/clairemartin
+salary:
+  expected: "55000"
+availability:
+  start_date: "2026-04-01"
