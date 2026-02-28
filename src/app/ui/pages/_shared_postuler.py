@@ -160,6 +160,11 @@ def render() -> None:
                     "connector": runtime_result.connector,
                     "apply_click_selector": runtime_result.apply_click_selector,
                     "stop_reason": runtime_result.automation_run.stop_reason,
+                    "snapshot_path": (
+                        str(runtime_result.snapshot_path)
+                        if runtime_result.snapshot_path is not None
+                        else None
+                    ),
                     "steps": [
                         {
                             "step_index": step.snapshot.step_index,
@@ -181,6 +186,8 @@ def render() -> None:
         )
         if browser_run["apply_click_selector"]:
             st.caption(f"Bouton d'entree clique: {browser_run['apply_click_selector']}")
+        if browser_run["snapshot_path"]:
+            st.caption(f"Snapshot HTML: {browser_run['snapshot_path']}")
         st.dataframe(browser_run["steps"], use_container_width=True, hide_index=True)
 
     detect_clicked = st.button("Detecter les champs", type="primary")

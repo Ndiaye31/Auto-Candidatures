@@ -2740,3 +2740,5 @@ Traceback (most recent call last):
 NotImplementedError
 2026-02-28 23:49:57,673 | INFO | job_application_assistant.browser_automation | Automation stopped before submit
 2026-02-28 23:49:59,043 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-03-01 00:01:20,720 | INFO | job_application_assistant.browser_automation | Automation stopped before submit
+2026-03-01 00:01:22,369 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row

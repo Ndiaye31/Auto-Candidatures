@@ -10,6 +10,7 @@ class SiteConnector:
     label: str
     domains: tuple[str, ...]
     apply_selectors: tuple[str, ...]
+    apply_texts: tuple[str, ...]
 
 
 GENERIC_CONNECTOR = SiteConnector(
@@ -23,6 +24,7 @@ GENERIC_CONNECTOR = SiteConnector(
         "button:has-text('Postuler')",
         "button:has-text('Apply')",
     ),
+    apply_texts=("Postuler", "Apply", "Candidater"),
 )
 
 INDEED_CONNECTOR = SiteConnector(
@@ -32,9 +34,24 @@ INDEED_CONNECTOR = SiteConnector(
     apply_selectors=(
         "#indeedApplyButton",
         "button[data-testid='indeedApplyButton']",
+        "a[data-testid='indeedApplyButton']",
+        "button[data-testid='apply-button']",
+        "a[data-testid='apply-button']",
+        "button[aria-label*='Postuler']",
+        "a[aria-label*='Postuler']",
         "button:has-text('Postuler maintenant')",
         "button:has-text('Candidature simplifiée')",
+        "button:has-text('Postuler')",
+        "a:has-text('Postuler')",
         "button:has-text('Apply now')",
+        "a:has-text('Apply now')",
+    ),
+    apply_texts=(
+        "Postuler maintenant",
+        "Candidature simplifiée",
+        "Postuler",
+        "Apply now",
+        "Apply",
     ),
 )
 
@@ -49,6 +66,7 @@ HELLOWORK_CONNECTOR = SiteConnector(
         "a:has-text('Postuler')",
         "button:has-text('Candidater')",
     ),
+    apply_texts=("Postuler", "Candidater", "Je postule"),
 )
 
 SUPPORTED_CONNECTORS = (
