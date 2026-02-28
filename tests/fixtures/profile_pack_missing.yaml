@@ -1,0 +1,10 @@
+identity:
+  full_name: Sam Dupont
+summary: >
+  Profil en transition vers un poste data avec une base Python.
+experience:
+  current_title: Analyste
+skills:
+  - Python
+preferences:
+  remote: remote

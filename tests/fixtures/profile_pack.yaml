@@ -1,0 +1,26 @@
+identity:
+  full_name: Claire Martin
+  email: claire.martin@example.com
+  phone: "0601020304"
+  location: Lyon
+summary: >
+  Ingenieure backend orientee produit, habituee a livrer des API robustes,
+  a clarifier les besoins metier et a fiabiliser les integrations techniques.
+experience:
+  current_title: Backend Engineer
+  years_experience: 6
+skills:
+  - Python
+  - FastAPI
+  - PostgreSQL
+  - Docker
+achievements:
+  - Migration d'API critiques sans interruption de service
+  - Mise en place d'indicateurs de fiabilite pour l'equipe backend
+target_stack:
+  - Python
+  - FastAPI
+  - PostgreSQL
+preferences:
+  remote: hybride
+  seniority: senior
