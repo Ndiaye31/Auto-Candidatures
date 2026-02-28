@@ -49,23 +49,10 @@ class SchemaVersion(SQLModel, table=True):
     updated_at: datetime = Field(default_factory=utcnow, nullable=False)
 
 
-class User(SQLModel, table=True):
-    __tablename__ = "users"
-
-    id: int | None = Field(default=None, primary_key=True)
-    email: str = Field(sa_column=Column("email", String, unique=True, nullable=False))
-    password_hash: str
-    full_name: str
-    is_active: bool = Field(default=True, nullable=False)
-    created_at: datetime = Field(default_factory=utcnow, nullable=False)
-    updated_at: datetime = Field(default_factory=utcnow, nullable=False)
-
-
 class CandidateProfile(SQLModel, table=True):
     __tablename__ = "candidate_profiles"
 
     id: int | None = Field(default=None, primary_key=True)
-    user_id: int = Field(foreign_key="users.id", index=True)
     name: str = Field(index=True)
     slug: str = Field(index=True)
     profile_yaml: str

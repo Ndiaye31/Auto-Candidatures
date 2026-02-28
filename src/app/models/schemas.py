@@ -11,7 +11,6 @@ from app.models.tables import (
     ContactStatus,
     EventStatus,
     JobStatus,
-    User,
 )
 
 
@@ -55,38 +54,14 @@ class EventCreate(BaseModel):
     payload: dict[str, Any] | None = None
 
 
-class UserCreate(BaseModel):
-    email: str
-    password: str
-    full_name: str
-
-
 class CandidateProfileCreate(BaseModel):
-    user_id: int
     name: str
     profile_yaml: str
     is_default: bool = False
 
 
-class UserView(BaseModel):
-    id: int
-    email: str
-    full_name: str
-    is_active: bool
-
-    @classmethod
-    def from_model(cls, user: User) -> "UserView":
-        return cls(
-            id=user.id,
-            email=user.email,
-            full_name=user.full_name,
-            is_active=user.is_active,
-        )
-
-
 class CandidateProfileView(BaseModel):
     id: int
-    user_id: int
     name: str
     slug: str
     profile_yaml: str
@@ -96,7 +71,6 @@ class CandidateProfileView(BaseModel):
     def from_model(cls, profile: CandidateProfile) -> "CandidateProfileView":
         return cls(
             id=profile.id,
-            user_id=profile.user_id,
             name=profile.name,
             slug=profile.slug,
             profile_yaml=profile.profile_yaml,

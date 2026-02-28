@@ -11,7 +11,6 @@ from app.models.repositories import (
     ContactRepository,
     EventRepository,
     JobRepository,
-    UserRepository,
 )
 from app.models.tables import (
     Application,
@@ -24,7 +23,6 @@ from app.models.tables import (
     Job,
     JobStatus,
     SchemaVersion,
-    User,
 )
 
 __all__ = [
@@ -45,8 +43,6 @@ __all__ = [
     "SCHEMA_COMPONENT",
     "SCHEMA_VERSION",
     "SchemaVersion",
-    "User",
-    "UserRepository",
     "create_db_engine",
     "get_session",
     "init_db",

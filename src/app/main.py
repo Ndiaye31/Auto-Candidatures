@@ -11,19 +11,16 @@ if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
 from app.models.db import get_session, init_db  # noqa: E402
-from app.services.auth import (  # noqa: E402
-    AuthError,
-    authenticate_user,
+from app.services.profiles import (  # noqa: E402
+    ProfileError,
     create_profile,
-    get_authenticated_context,
+    ensure_default_profile,
     list_profiles,
-    register_user,
     select_profile,
 )
 from app.ui.components import (  # noqa: E402
     get_active_profile,
     get_active_profile_payload,
-    get_current_user,
     get_default_profile_path,
     list_jobs_with_score,
 )
@@ -54,84 +51,13 @@ def _is_streamlit_runtime() -> bool:
         return False
 
 
-def _logout() -> None:
+def _render_profiles_sidebar() -> None:
     import streamlit as st
 
-    keys_to_clear = [
-        "auth_user_id",
-        "active_profile_id",
-        "selected_job_id",
-        "current_page",
-    ]
-    for key in keys_to_clear:
-        if key in st.session_state:
-            del st.session_state[key]
-
-
-def _render_auth_sidebar() -> bool:
-    import streamlit as st
-
-    st.sidebar.subheader("Authentification")
     with get_session() as session:
-        current_user = get_current_user(session)
-
-    if current_user is None:
-        auth_mode = st.sidebar.radio("Acces", ["Connexion", "Inscription"])
-        if auth_mode == "Connexion":
-            with st.sidebar.form("login-form"):
-                email = st.text_input("Email")
-                password = st.text_input("Mot de passe", type="password")
-                submitted = st.form_submit_button("Se connecter", use_container_width=True)
-            if submitted:
-                try:
-                    with get_session() as session:
-                        user = authenticate_user(
-                            session, email=email, password=password
-                        )
-                        context = get_authenticated_context(session, user_id=user.id)
-                    st.session_state["auth_user_id"] = user.id
-                    st.session_state["active_profile_id"] = (
-                        context.active_profile.id if context and context.active_profile else None
-                    )
-                    st.sidebar.success(f"Connecte: {user.full_name}")
-                    st.rerun()
-                except AuthError as exc:
-                    st.sidebar.error(str(exc))
-        else:
-            with st.sidebar.form("register-form"):
-                full_name = st.text_input("Nom complet")
-                email = st.text_input("Email")
-                password = st.text_input("Mot de passe", type="password")
-                submitted = st.form_submit_button("Creer le compte", use_container_width=True)
-            if submitted:
-                try:
-                    with get_session() as session:
-                        user = register_user(
-                            session,
-                            email=email,
-                            password=password,
-                            full_name=full_name,
-                        )
-                        context = get_authenticated_context(session, user_id=user.id)
-                    st.session_state["auth_user_id"] = user.id
-                    st.session_state["active_profile_id"] = (
-                        context.active_profile.id if context and context.active_profile else None
-                    )
-                    st.sidebar.success("Compte cree et connecte.")
-                    st.rerun()
-                except AuthError as exc:
-                    st.sidebar.error(str(exc))
-        return False
-
-    st.sidebar.success(f"Connecte: {current_user.full_name}")
-    st.sidebar.caption(current_user.email)
-    if st.sidebar.button("Se deconnecter", use_container_width=True):
-        _logout()
-        st.rerun()
-
-    with get_session() as session:
-        profiles = list_profiles(session, user_id=current_user.id)
-        active_profile = get_active_profile(session, current_user.id)
+        ensure_default_profile(session)
+        profiles = list_profiles(session)
+        active_profile = get_active_profile(session)
 
     st.sidebar.subheader("Profils")
     if profiles:
@@ -152,9 +78,7 @@ def _render_auth_sidebar() -> bool:
         )
         if active_profile is None or selected_profile_name != active_profile.id:
             with get_session() as session:
-                selected = select_profile(
-                    session, user_id=current_user.id, profile_id=int(selected_profile_name)
-                )
+                selected = select_profile(session, profile_id=int(selected_profile_name))
             if selected is not None:
                 st.session_state["active_profile_id"] = selected.id
                 st.rerun()
@@ -162,12 +86,7 @@ def _render_auth_sidebar() -> bool:
     with st.sidebar.expander("Nouveau profil"):
         with st.form("new-profile-form"):
             profile_name = st.text_input("Nom du profil")
-            yaml_seed = {
-                "identity": {
-                    "full_name": current_user.full_name,
-                    "email": current_user.email,
-                }
-            }
+            yaml_seed = {"identity": {"full_name": "", "email": ""}}
             profile_yaml = st.text_area(
                 "YAML du profil",
                 value=yaml.safe_dump(yaml_seed, allow_unicode=True, sort_keys=False),
@@ -180,7 +99,6 @@ def _render_auth_sidebar() -> bool:
                 with get_session() as session:
                     profile = create_profile(
                         session,
-                        user_id=current_user.id,
                         name=profile_name,
                         profile_yaml=profile_yaml,
                         is_default=set_default,
@@ -188,10 +106,8 @@ def _render_auth_sidebar() -> bool:
                 st.session_state["active_profile_id"] = profile.id
                 st.sidebar.success("Profil cree.")
                 st.rerun()
-            except AuthError as exc:
+            except ProfileError as exc:
                 st.sidebar.error(str(exc))
-
-    return True
 
 
 def _render_home() -> None:
@@ -208,10 +124,7 @@ def _render_home() -> None:
 
     st.title("Job Application Assistant")
     st.caption("UI assistee uniquement. Aucun auto-submit.")
-
-    if not _render_auth_sidebar():
-        st.info("Connecte-toi ou cree un compte pour acceder a l'application.")
-        return
+    _render_profiles_sidebar()
 
     if "current_page" not in st.session_state:
         st.session_state["current_page"] = "offres"
