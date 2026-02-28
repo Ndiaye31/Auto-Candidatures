@@ -15,6 +15,7 @@ from app.ui.pages import (  # noqa: E402
     page_offer_detail,
     page_postuler_assiste,
 )
+from app.utils.logging import get_logger  # noqa: E402
 
 
 LAUNCH_INSTRUCTIONS = (
@@ -24,6 +25,7 @@ LAUNCH_INSTRUCTIONS = (
     "  python -m streamlit run src/app/main.py\n"
     "  app"
 )
+LOGGER = get_logger("main")
 
 
 def _is_streamlit_runtime() -> bool:
@@ -38,8 +40,15 @@ def _is_streamlit_runtime() -> bool:
 def _render_home() -> None:
     import streamlit as st
 
-    init_db()
     st.set_page_config(page_title="Job Application Assistant", layout="wide")
+    try:
+        init_db()
+    except Exception as exc:
+        LOGGER.exception("Database initialization failed")
+        st.error("Initialisation de la base impossible.")
+        st.exception(exc)
+        return
+
     st.title("Job Application Assistant")
     st.caption("UI assistee uniquement. Aucun auto-submit.")
 
@@ -59,8 +68,19 @@ def _render_home() -> None:
     st.session_state["current_page"] = page
 
     profile_path = get_default_profile_path()
-    with get_session() as session:
-        jobs = list_jobs_with_score(session, profile_path)
+    if profile_path is None:
+        st.sidebar.warning("Aucun profile.yaml detecte.")
+    else:
+        st.sidebar.success(f"Profil charge: {profile_path}")
+
+    try:
+        with get_session() as session:
+            jobs = list_jobs_with_score(session, profile_path)
+    except Exception as exc:
+        LOGGER.exception("Failed to load jobs")
+        st.error("Chargement des offres impossible.")
+        st.exception(exc)
+        return
 
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("Offres", len(jobs))
@@ -72,12 +92,17 @@ def _render_home() -> None:
     )
 
     st.divider()
-    if page == "offres":
-        page_offers.render()
-    elif page == "detail":
-        page_offer_detail.render()
-    else:
-        page_postuler_assiste.render()
+    try:
+        if page == "offres":
+            page_offers.render()
+        elif page == "detail":
+            page_offer_detail.render()
+        else:
+            page_postuler_assiste.render()
+    except Exception as exc:
+        LOGGER.exception("Page rendering failed", extra={"page": page})
+        st.error("Une erreur est survenue pendant le rendu de la page.")
+        st.exception(exc)
 
 
 def run() -> None:

@@ -6,6 +6,9 @@ import streamlit as st
 
 from app.models.db import get_session
 from app.ui.components import get_default_profile_path, list_jobs_with_score
+from app.utils.logging import get_logger
+
+LOGGER = get_logger("ui.offres")
 
 
 def render() -> None:
@@ -16,8 +19,14 @@ def render() -> None:
     else:
         st.caption(f"Profil utilise pour le score: {Path(profile_path)}")
 
-    with get_session() as session:
-        jobs = list_jobs_with_score(session, profile_path)
+    try:
+        with get_session() as session:
+            jobs = list_jobs_with_score(session, profile_path)
+    except Exception as exc:
+        LOGGER.exception("Failed to load offers")
+        st.error("Impossible de charger les offres.")
+        st.exception(exc)
+        return
 
     company_options = sorted({job["company"] for job in jobs})
     status_options = sorted({job["status"] for job in jobs})
@@ -51,6 +60,9 @@ def render() -> None:
         filtered_jobs.append(item)
 
     st.caption(f"{len(filtered_jobs)} offre(s)")
+    if not filtered_jobs:
+        st.info("Aucune offre ne correspond aux filtres actuels.")
+        return
     for item in filtered_jobs:
         with st.container(border=True):
             top_left, top_mid, top_right = st.columns([3, 1, 1])

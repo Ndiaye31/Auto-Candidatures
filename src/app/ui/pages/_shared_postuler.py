@@ -16,6 +16,9 @@ from app.ui.components import (
     mark_job_applied,
     save_site_mapping,
 )
+from app.utils.logging import get_logger
+
+LOGGER = get_logger("ui.postuler")
 
 
 def _rows_to_candidates(rows: list[dict[str, object]]) -> list[FieldCandidate]:
@@ -50,8 +53,14 @@ def render() -> None:
         st.info("Choisis d'abord une offre depuis la page Offres ou Detail.")
         return
 
-    with get_session() as session:
-        job = JobRepository(session).get(int(job_id))
+    try:
+        with get_session() as session:
+            job = JobRepository(session).get(int(job_id))
+    except Exception as exc:
+        LOGGER.exception("Failed to load assisted apply page", extra={"job_id": job_id})
+        st.error("Impossible de charger cette offre.")
+        st.exception(exc)
+        return
     if job is None:
         st.error("Offre introuvable.")
         return
@@ -74,17 +83,35 @@ def render() -> None:
     if job.source_url:
         col1.link_button("Ouvrir URL", job.source_url, use_container_width=True)
     if col2.button("Marquer applied", use_container_width=True):
-        with get_session() as session:
-            mark_job_applied(session, int(job.id))
-        st.success("Offre marquee comme applied.")
+        try:
+            with get_session() as session:
+                mark_job_applied(session, int(job.id))
+        except Exception as exc:
+            LOGGER.exception("Failed to update job status", extra={"job_id": job.id})
+            st.error("Impossible de mettre a jour le statut.")
+            st.exception(exc)
+        else:
+            st.success("Offre marquee comme applied.")
     col3.caption("Auto-submit interdit: cette page n'envoie rien.")
 
-    if st.button("Detecter les champs", type="primary") and html.strip():
-        detected = map_form_fields(html, Path(profile_path))
-        st.session_state[f"mapping_rows_{job.id}"] = field_candidates_to_rows(
-            apply_saved_mapping(domain_key, detected)
-        )
-        st.rerun()
+    detect_clicked = st.button("Detecter les champs", type="primary")
+    if detect_clicked and not html.strip():
+        st.warning("Colle d'abord le HTML du formulaire.")
+    elif detect_clicked and not domain_key.strip():
+        st.warning("Le domaine/site doit etre renseigne pour reutiliser le mapping.")
+    elif detect_clicked:
+        try:
+            detected = map_form_fields(html, Path(profile_path))
+            st.session_state[f"mapping_rows_{job.id}"] = field_candidates_to_rows(
+                apply_saved_mapping(domain_key.strip(), detected)
+            )
+        except Exception as exc:
+            LOGGER.exception("Field detection failed", extra={"job_id": job.id})
+            st.error("Detection des champs impossible.")
+            st.exception(exc)
+        else:
+            st.success(f"{len(detected)} champ(s) detecte(s).")
+            st.rerun()
 
     stored_rows = st.session_state.get(f"mapping_rows_{job.id}")
     if not stored_rows:
@@ -120,10 +147,21 @@ def render() -> None:
 
     action_col1, action_col2 = st.columns([1, 1])
     if action_col1.button("Sauvegarder mapping site", use_container_width=True):
-        candidates = _rows_to_candidates(edited.to_dict(orient="records"))
-        save_site_mapping(domain_key, candidates)
-        st.session_state[f"mapping_rows_{job.id}"] = field_candidates_to_rows(candidates)
-        st.success(f"Mapping sauvegarde pour {domain_key}.")
+        if not domain_key.strip():
+            st.warning("Le domaine/site est obligatoire pour sauvegarder un mapping.")
+        else:
+            try:
+                candidates = _rows_to_candidates(edited.to_dict(orient="records"))
+                save_site_mapping(domain_key.strip(), candidates)
+                st.session_state[f"mapping_rows_{job.id}"] = field_candidates_to_rows(
+                    candidates
+                )
+            except Exception as exc:
+                LOGGER.exception("Saving site mapping failed", extra={"job_id": job.id})
+                st.error("Sauvegarde du mapping impossible.")
+                st.exception(exc)
+            else:
+                st.success(f"Mapping sauvegarde pour {domain_key.strip()}.")
 
     selected_selector = action_col2.selectbox(
         "Copier valeur pour",
@@ -136,5 +174,8 @@ def render() -> None:
             for item in edited.to_dict(orient="records")
             if item["selector"] == selected_selector
         )
-        st.code(row.get("proposed_value") or "", language=None)
+        value = row.get("proposed_value") or ""
+        if not value:
+            st.warning("Aucune valeur proposee pour ce champ. Edite-la manuellement.")
+        st.code(value, language=None)
         st.caption("Copie manuelle uniquement. Aucun auto-submit n'est effectue.")

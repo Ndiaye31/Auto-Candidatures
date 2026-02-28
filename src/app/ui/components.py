@@ -12,8 +12,10 @@ from app.models.repositories import JobRepository
 from app.models.tables import Job, JobStatus
 from app.services.extraction_dom import FieldCandidate
 from app.services.scoring import ScoreResult, load_profile, score_job
+from app.utils.logging import get_logger
 
 MAPPINGS_PATH = Path("data/mappings/site_mappings.json")
+LOGGER = get_logger("ui.components")
 
 
 def get_default_profile_path() -> Path | None:
@@ -31,8 +33,12 @@ def get_default_profile_path() -> Path | None:
 def compute_job_score(job: Job, profile_path: Path | None) -> ScoreResult | None:
     if profile_path is None or not profile_path.exists():
         return None
-    profile = load_profile(profile_path)
-    return score_job(job.description or "", profile)
+    try:
+        profile = load_profile(profile_path)
+        return score_job(job.description or "", profile)
+    except Exception:
+        LOGGER.exception("Failed to compute score", extra={"job_id": job.id})
+        return None
 
 
 def list_jobs_with_score(session: Session, profile_path: Path | None) -> list[dict[str, Any]]:
@@ -79,13 +85,19 @@ def get_domain_key(url: str | None) -> str:
 def load_site_mappings() -> dict[str, dict[str, dict[str, Any]]]:
     if not MAPPINGS_PATH.exists():
         return {}
-    return json.loads(MAPPINGS_PATH.read_text(encoding="utf-8"))
+    try:
+        return json.loads(MAPPINGS_PATH.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        LOGGER.exception("Invalid mapping file", extra={"path": str(MAPPINGS_PATH)})
+        return {}
 
 
 def save_site_mapping(
     site_key: str,
     field_candidates: list[FieldCandidate],
 ) -> None:
+    if not site_key.strip():
+        raise ValueError("Le domaine/site ne peut pas etre vide.")
     payload = load_site_mappings()
     payload[site_key] = {
         candidate.selector: {

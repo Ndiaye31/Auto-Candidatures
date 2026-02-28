@@ -1,0 +1,42 @@
+identity:
+  full_name: Jane Doe
+  email: jane.doe@example.com
+  phone: "+33 6 00 00 00 00"
+  location: Paris
+  city: Paris
+summary: >
+  Developpeuse backend orientee produit, a l'aise sur les API, les integrations
+  et la fiabilite des services en production.
+experience:
+  current_title: Backend Engineer
+  years_experience: 5
+skills:
+  - Python
+  - FastAPI
+  - PostgreSQL
+  - Docker
+achievements:
+  - Livraison d'API critiques avec suivi de performance
+  - Reduction d'incidents grace a une meilleure observabilite
+target_stack:
+  - Python
+  - FastAPI
+  - PostgreSQL
+keywords:
+  - term: python
+    weight: 12
+  - term: fastapi
+    weight: 10
+  - term: postgresql
+    weight: 8
+preferences:
+  remote: preferred
+  seniority: mid
+  availability: 1 mois
+urls:
+  linkedin: https://www.linkedin.com/in/jane-doe
+  github: https://github.com/janedoe
+salary:
+  expected: "60000"
+availability:
+  start_date: "2026-04-15"

@@ -8,6 +8,9 @@ from app.models.db import get_session
 from app.models.repositories import JobRepository
 from app.services.generation_pack import generate_application_pack
 from app.ui.components import compute_job_score, get_default_profile_path, mark_job_applied
+from app.utils.logging import get_logger
+
+LOGGER = get_logger("ui.detail")
 
 
 def render() -> None:
@@ -17,8 +20,14 @@ def render() -> None:
         st.info("Selectionne une offre depuis la page Offres.")
         return
 
-    with get_session() as session:
-        job = JobRepository(session).get(int(job_id))
+    try:
+        with get_session() as session:
+            job = JobRepository(session).get(int(job_id))
+    except Exception as exc:
+        LOGGER.exception("Failed to load job detail", extra={"job_id": job_id})
+        st.error("Impossible de charger cette offre.")
+        st.exception(exc)
+        return
     if job is None:
         st.error("Offre introuvable.")
         return
@@ -34,17 +43,31 @@ def render() -> None:
         if profile_path is None:
             st.error("Aucun profile.yaml disponible.")
         else:
-            result = generate_application_pack(job, Path(profile_path), Path("data/packs"))
-            st.session_state["last_pack_dir"] = str(result.output_dir)
-            st.success(f"Pack genere dans {result.output_dir}")
+            try:
+                result = generate_application_pack(
+                    job, Path(profile_path), Path("data/packs")
+                )
+            except Exception as exc:
+                LOGGER.exception("Pack generation failed", extra={"job_id": job.id})
+                st.error("Generation du pack impossible.")
+                st.exception(exc)
+            else:
+                st.session_state["last_pack_dir"] = str(result.output_dir)
+                st.success(f"Pack genere dans {result.output_dir}")
     if action_col3.button("Postuler assiste", use_container_width=True):
         st.session_state["current_page"] = "postuler"
         st.rerun()
 
     if st.button("Marquer applied"):
-        with get_session() as session:
-            mark_job_applied(session, int(job.id))
-        st.success("Offre marquee comme applied.")
+        try:
+            with get_session() as session:
+                mark_job_applied(session, int(job.id))
+        except Exception as exc:
+            LOGGER.exception("Failed to update job status", extra={"job_id": job.id})
+            st.error("Impossible de mettre a jour le statut.")
+            st.exception(exc)
+        else:
+            st.success("Offre marquee comme applied.")
 
     info_col1, info_col2, info_col3 = st.columns(3)
     info_col1.metric("Statut", job.status.value)
