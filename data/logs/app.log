@@ -1074,3 +1074,5 @@ FROM applications
 WHERE applications.job_id = ? AND applications.profile_id = ?]
 [parameters: (1, 1)]
 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-02-28 23:15:43,049 | INFO | job_application_assistant.browser_automation | Automation stopped before submit
+2026-02-28 23:16:32,247 | INFO | job_application_assistant.browser_automation | Automation stopped before submit
