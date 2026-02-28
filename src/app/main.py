@@ -27,6 +27,7 @@ from app.ui.components import (  # noqa: E402
 from app.ui.pages import (  # noqa: E402
     page_offers,
     page_offer_detail,
+    page_pipeline,
     page_postuler_assiste,
 )
 from app.utils.logging import get_logger  # noqa: E402
@@ -131,11 +132,12 @@ def _render_home() -> None:
 
     page = st.sidebar.radio(
         "Pages",
-        options=["offres", "detail", "postuler"],
-        index=["offres", "detail", "postuler"].index(st.session_state["current_page"]),
+        options=["offres", "detail", "pipeline", "postuler"],
+        index=["offres", "detail", "pipeline", "postuler"].index(st.session_state["current_page"]),
         format_func=lambda value: {
             "offres": "Offres",
             "detail": "Detail offre",
+            "pipeline": "Pipeline ATS",
             "postuler": "Postuler (assiste)",
         }[value],
     )
@@ -175,6 +177,8 @@ def _render_home() -> None:
             page_offers.render()
         elif page == "detail":
             page_offer_detail.render()
+        elif page == "pipeline":
+            page_pipeline.render()
         else:
             page_postuler_assiste.render()
     except Exception as exc:

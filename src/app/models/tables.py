@@ -27,6 +27,22 @@ class ApplicationStatus(StrEnum):
     OFFER = "offer"
 
 
+class ApplicationStage(StrEnum):
+    SOURCED = "sourced"
+    TO_REVIEW = "to_review"
+    PACK_READY = "pack_ready"
+    APPLIED = "applied"
+    SCREENING = "screening"
+    INTERVIEW_HR = "interview_hr"
+    INTERVIEW_TECH = "interview_tech"
+    CASE_STUDY = "case_study"
+    FINAL_INTERVIEW = "final_interview"
+    OFFER = "offer"
+    HIRED = "hired"
+    REJECTED = "rejected"
+    WITHDRAWN = "withdrawn"
+
+
 class ContactStatus(StrEnum):
     NEW = "new"
     CONTACTED = "contacted"
@@ -90,7 +106,12 @@ class Application(SQLModel, table=True):
     cover_letter_path: str | None = None
     resume_path: str | None = None
     status: ApplicationStatus = Field(default=ApplicationStatus.DRAFT, index=True)
+    stage: ApplicationStage = Field(default=ApplicationStage.SOURCED, index=True)
     submitted_at: datetime | None = None
+    last_event_at: datetime | None = None
+    next_step: str | None = None
+    next_step_due_at: datetime | None = None
+    outcome_reason: str | None = None
     notes: str | None = None
     created_at: datetime = Field(default_factory=utcnow, nullable=False)
     updated_at: datetime = Field(default_factory=utcnow, nullable=False)
@@ -125,5 +146,7 @@ class Event(SQLModel, table=True):
     contact_id: int | None = Field(default=None, foreign_key="contacts.id", index=True)
     event_type: str = Field(index=True)
     status: EventStatus = Field(default=EventStatus.PENDING, index=True)
+    note: str | None = None
     payload: dict[str, Any] | None = Field(default=None, sa_column=Column(JSON))
+    event_at: datetime = Field(default_factory=utcnow, nullable=False)
     created_at: datetime = Field(default_factory=utcnow, nullable=False)

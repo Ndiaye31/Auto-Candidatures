@@ -7,6 +7,7 @@ from sqlmodel import Session, SQLModel, select
 
 from app.models.tables import (
     Application,
+    ApplicationStage,
     CandidateProfile,
     Contact,
     Event,
@@ -116,6 +117,27 @@ class ApplicationRepository(SQLModelRepository[Application]):
         )
         return list(self.session.exec(statement))
 
+    def list_by_profile(self, profile_id: int) -> list[Application]:
+        statement = select(Application).where(
+            Application.profile_id == profile_id
+        ).order_by(Application.updated_at.desc())
+        return list(self.session.exec(statement))
+
+    def get_by_job_and_profile(
+        self, job_id: int, profile_id: int | None
+    ) -> Application | None:
+        statement = select(Application).where(
+            Application.job_id == job_id,
+            Application.profile_id == profile_id,
+        )
+        return self.session.exec(statement).first()
+
+    def list_by_stage(self, stage: ApplicationStage) -> list[Application]:
+        statement = select(Application).where(Application.stage == stage).order_by(
+            Application.updated_at.desc()
+        )
+        return list(self.session.exec(statement))
+
 
 class ContactRepository(SQLModelRepository[Contact]):
     model = Contact
@@ -131,5 +153,5 @@ class EventRepository(SQLModelRepository[Event]):
     def list_by_application(self, application_id: int) -> list[Event]:
         statement = select(Event).where(
             Event.application_id == application_id
-        ).order_by(Event.id)
+        ).order_by(Event.event_at.desc(), Event.id.desc())
         return list(self.session.exec(statement))

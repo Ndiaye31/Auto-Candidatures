@@ -14,6 +14,7 @@ from app.models.repositories import (
 )
 from app.models.tables import (
     Application,
+    ApplicationStage,
     ApplicationStatus,
     CandidateProfile,
     Contact,
@@ -28,6 +29,7 @@ from app.models.tables import (
 __all__ = [
     "Application",
     "ApplicationRepository",
+    "ApplicationStage",
     "ApplicationStatus",
     "CandidateProfile",
     "CandidateProfileRepository",

@@ -69,6 +69,10 @@ def render() -> None:
             top_left.subheader(f"{item['title']} · {item['company']}")
             top_mid.metric("Score", item["score"] if item["score"] is not None else "N/A")
             top_right.write(f"Statut: `{item['status']}`")
+            if item["application_stage"]:
+                st.caption(f"Stage ATS: {item['application_stage']}")
+            elif active_profile is not None:
+                st.caption("Stage ATS: non cree")
             st.write(item["location"] or "Localisation non renseignee")
             if item["score_reasons"]:
                 st.caption(

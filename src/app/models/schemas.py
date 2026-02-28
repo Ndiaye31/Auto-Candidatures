@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 from app.models.tables import (
     ApplicationStatus,
+    ApplicationStage,
     CandidateProfile,
     ContactStatus,
     EventStatus,
@@ -30,7 +31,11 @@ class ApplicationCreate(BaseModel):
     cover_letter_path: str | None = None
     resume_path: str | None = None
     status: ApplicationStatus = ApplicationStatus.DRAFT
+    stage: ApplicationStage = ApplicationStage.SOURCED
     submitted_at: datetime | None = None
+    next_step: str | None = None
+    next_step_due_at: datetime | None = None
+    outcome_reason: str | None = None
     notes: str | None = None
 
 
@@ -51,6 +56,7 @@ class EventCreate(BaseModel):
     application_id: int | None = None
     contact_id: int | None = None
     status: EventStatus = EventStatus.PENDING
+    note: str | None = None
     payload: dict[str, Any] | None = None
 
 

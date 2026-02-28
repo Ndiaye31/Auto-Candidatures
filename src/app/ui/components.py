@@ -9,7 +9,7 @@ from urllib.parse import urlparse
 import streamlit as st
 from sqlmodel import Session
 
-from app.models.repositories import CandidateProfileRepository, JobRepository
+from app.models.repositories import ApplicationRepository, CandidateProfileRepository, JobRepository
 from app.models.tables import CandidateProfile, Job, JobStatus
 from app.services.extraction_dom import FieldCandidate
 from app.services.scoring import ScoreResult, load_profile, score_job
@@ -59,6 +59,11 @@ def get_active_profile_payload(session: Session) -> tuple[CandidateProfile | Non
     return None, load_profile_payload(profile_path=profile_path)
 
 
+def get_active_profile_id(session: Session) -> int | None:
+    profile = get_active_profile(session)
+    return profile.id if profile is not None else None
+
+
 def compute_job_score(
     job: Job,
     profile_path: Path | None = None,
@@ -89,6 +94,7 @@ def list_jobs_with_score(
 ) -> list[dict[str, Any]]:
     repository = JobRepository(session)
     rows: list[dict[str, Any]] = []
+    active_profile_id = get_active_profile_id(session)
     for job in repository.list():
         score_result = compute_job_score(
             job,
@@ -96,6 +102,11 @@ def list_jobs_with_score(
             profile_yaml=profile_yaml,
             profile_data=profile_data,
         )
+        application = None
+        if active_profile_id is not None:
+            application = ApplicationRepository(session).get_by_job_and_profile(
+                job.id, active_profile_id
+            )
         rows.append(
             {
                 "id": job.id,
@@ -107,6 +118,9 @@ def list_jobs_with_score(
                 "source": job.source or "",
                 "score": score_result.score if score_result else None,
                 "score_reasons": score_result.reasons if score_result else [],
+                "application_id": application.id if application else None,
+                "application_stage": application.stage.value if application else "",
+                "next_step": application.next_step if application else "",
                 "job": job,
             }
         )

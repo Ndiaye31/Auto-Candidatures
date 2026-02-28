@@ -6,7 +6,9 @@ import pandas as pd
 import streamlit as st
 
 from app.models.db import get_session
-from app.models.repositories import JobRepository
+from app.models.repositories import ApplicationRepository, JobRepository
+from app.models.tables import ApplicationStage
+from app.services.ats import update_application_stage
 from app.services.extraction_dom import CANONICAL_RULES, FieldCandidate, map_form_fields
 from app.ui.components import (
     apply_saved_mapping,
@@ -67,6 +69,13 @@ def render() -> None:
 
     with get_session() as session:
         active_profile, profile_data = get_active_profile_payload(session)
+        application = (
+            None
+            if active_profile is None
+            else ApplicationRepository(session).get_by_job_and_profile(
+                job.id, active_profile.id
+            )
+        )
     if profile_data is None:
         st.error("Aucun profil disponible pour proposer des valeurs.")
         return
@@ -88,7 +97,15 @@ def render() -> None:
     if col2.button("Marquer applied", use_container_width=True):
         try:
             with get_session() as session:
-                mark_job_applied(session, int(job.id))
+                if application is not None:
+                    update_application_stage(
+                        session,
+                        application_id=application.id,
+                        stage=ApplicationStage.APPLIED,
+                        note="Offre marquee comme applied depuis Postuler assiste",
+                    )
+                else:
+                    mark_job_applied(session, int(job.id))
         except Exception as exc:
             LOGGER.exception("Failed to update job status", extra={"job_id": job.id})
             st.error("Impossible de mettre a jour le statut.")
