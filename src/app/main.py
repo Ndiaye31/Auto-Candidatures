@@ -25,6 +25,7 @@ from app.ui.components import (  # noqa: E402
     list_jobs_with_score,
 )
 from app.ui.pages import (  # noqa: E402
+    page_import_offres,
     page_offers,
     page_offer_detail,
     page_pipeline,
@@ -132,9 +133,12 @@ def _render_home() -> None:
 
     page = st.sidebar.radio(
         "Pages",
-        options=["offres", "detail", "pipeline", "postuler"],
-        index=["offres", "detail", "pipeline", "postuler"].index(st.session_state["current_page"]),
+        options=["import", "offres", "detail", "pipeline", "postuler"],
+        index=["import", "offres", "detail", "pipeline", "postuler"].index(
+            st.session_state["current_page"]
+        ),
         format_func=lambda value: {
+            "import": "Import offres",
             "offres": "Offres",
             "detail": "Detail offre",
             "pipeline": "Pipeline ATS",
@@ -173,7 +177,9 @@ def _render_home() -> None:
 
     st.divider()
     try:
-        if page == "offres":
+        if page == "import":
+            page_import_offres.render()
+        elif page == "offres":
             page_offers.render()
         elif page == "detail":
             page_offer_detail.render()
