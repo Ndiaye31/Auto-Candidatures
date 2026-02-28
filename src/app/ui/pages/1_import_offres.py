@@ -1,15 +1,21 @@
 from __future__ import annotations
 
 from io import StringIO
+from pathlib import Path
 
 import streamlit as st
 
 from app.models.db import get_session, init_db
+from app.ui.components import get_active_profile_id
 from app.services.import_offres import (
     InvalidJobRowError,
     add_job,
+    import_jobs_from_alerts_excel_path,
     import_jobs_from_csv,
 )
+from app.utils.logging import get_logger
+
+LOGGER = get_logger("ui.import_offres")
 
 
 def _render_csv_import() -> None:
@@ -32,6 +38,45 @@ def _render_csv_import() -> None:
             st.success(
                 f"Import terminé: {result.created} créées, {result.skipped} ignorées."
             )
+
+
+def _render_excel_alerts_import() -> None:
+    st.subheader("Import Excel alertes")
+    st.caption(
+        "Format attendu: fichier d'alertes Indeed/HelloWork avec colonnes source "
+        "du type `Titre du poste`, `URL de l'offre`, `Description`, `Statut`, "
+        "`Type Candidature`, etc."
+    )
+
+    uploaded_file = st.file_uploader("Fichier Excel alertes", type=["xlsx"])
+    if uploaded_file is None:
+        return
+
+    if st.button("Importer l'Excel alertes", type="primary"):
+        temp_dir = Path("data/imports")
+        temp_dir.mkdir(parents=True, exist_ok=True)
+        temp_path = temp_dir / uploaded_file.name
+        try:
+            temp_path.write_bytes(uploaded_file.getbuffer())
+            with get_session() as session:
+                profile_id = get_active_profile_id(session)
+                result = import_jobs_from_alerts_excel_path(
+                    session,
+                    temp_path,
+                    profile_id=profile_id,
+                )
+        except InvalidJobRowError as exc:
+            st.error(str(exc))
+        except Exception as exc:
+            LOGGER.exception("Excel alerts import failed")
+            st.error("Import Excel impossible.")
+            st.exception(exc)
+        else:
+            st.success(
+                f"Import Excel terminé: {result.created} créées, {result.skipped} ignorées."
+            )
+            if profile_id is not None:
+                st.caption("Le workflow ATS du profil actif a aussi été enrichi.")
 
 
 def _render_manual_form() -> None:
@@ -72,6 +117,8 @@ def main() -> None:
     init_db()
     st.title("Import offres")
     _render_csv_import()
+    st.divider()
+    _render_excel_alerts_import()
     st.divider()
     _render_manual_form()
 
