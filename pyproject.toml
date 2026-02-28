@@ -12,10 +12,11 @@ dependencies = [
   "jinja2>=3.1",
   "playwright>=1.43",
   "pandas>=2.2",
+  "pytest>=8.1",
 ]
 
 [project.scripts]
-app = "app.main:run"
+app = "cli.manage:main"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

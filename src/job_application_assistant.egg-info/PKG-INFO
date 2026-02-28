@@ -1,3 +1,18 @@
+Metadata-Version: 2.4
+Name: job-application-assistant
+Version: 0.1.0
+Summary: Application de candidature semi-automatique
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: streamlit>=1.32
+Requires-Dist: sqlmodel>=0.0.14
+Requires-Dist: SQLAlchemy>=2.0
+Requires-Dist: pydantic>=2.6
+Requires-Dist: jinja2>=3.1
+Requires-Dist: playwright>=1.43
+Requires-Dist: pandas>=2.2
+Requires-Dist: pytest>=8.1
+
 # Job Application Assistant
 
 ## Prerequisites
