@@ -145,6 +145,12 @@ def render() -> None:
                         ),
                         connector=connector,
                     )
+            except NotImplementedError:
+                st.error(
+                    "Playwright n'a pas pu demarrer le navigateur dans ce contexte. "
+                    "Relance l'application, puis reessaie. Si le probleme persiste, "
+                    "il faudra installer/configurer Playwright sur la machine."
+                )
             except Exception as exc:
                 LOGGER.exception("Playwright assisted navigation failed", extra={"job_id": job.id})
                 st.error("Navigation assistee impossible.")

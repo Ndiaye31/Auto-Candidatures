@@ -1570,3 +1570,1173 @@ Traceback (most recent call last):
 app.services.import_offres.InvalidJobRowError: Unable to extract a job title from alert row
 2026-02-28 23:38:28,724 | INFO | job_application_assistant.browser_automation | Automation stopped before submit
 2026-02-28 23:38:30,427 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-02-28 23:40:28,189 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-02-28 23:40:46,020 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-02-28 23:40:52,692 | ERROR | job_application_assistant.main | Failed to load jobs
+Traceback (most recent call last):
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.IntegrityError: UNIQUE constraint failed: jobs.source_url
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\main.py", line 155, in _render_home
+    sync_status, sync_result = sync_jobs_from_default_alerts_excel(
+                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        session,
+        ^^^^^^^^
+        profile_id=profile_id,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 456, in sync_jobs_from_default_alerts_excel
+    result = import_jobs_from_alerts_excel_path(
+        session,
+        status.file_path,
+        profile_id=profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 421, in import_jobs_from_alerts_excel_path
+    created = _ingest_alert_row(
+        session,
+        row,
+        profile_id=effective_profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 289, in _ingest_alert_row
+    job, created = add_job(
+                   ~~~~~~~^
+        session,
+        ^^^^^^^^
+    ...<5 lines>...
+        source=_coerce_cell(row.get("Source")),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 364, in add_job
+    return repository.create(job), True
+           ~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\models\repositories.py", line 32, in create
+    self.session.commit()
+    ~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 2030, in commit
+    trans.commit(_to_root=True)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "<string>", line 2, in commit
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 1311, in commit
+    self._prepare_impl()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "<string>", line 2, in _prepare_impl
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 1286, in _prepare_impl
+    self.session.flush()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 4331, in flush
+    self._flush(objects)
+    ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 4466, in _flush
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\util\langhelpers.py", line 121, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 4427, in _flush
+    flush_context.execute()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\unitofwork.py", line 466, in execute
+    rec.execute(self)
+    ~~~~~~~~~~~^^^^^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.mapper,
+        ^^^^^^^^^^^^
+        uow.states_for_mapper_hierarchy(self.mapper, False, False),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        uow,
+        ^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        base_mapper,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        insert,
+        ^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\persistence.py", line 1233, in _emit_insert_statements
+    result = connection.execute(
+        statement,
+        params,
+        execution_options=execution_options,
+    )
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1419, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\sql\elements.py", line 527, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache_hit,
+    )
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 2363, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: jobs.source_url
+[SQL: INSERT INTO jobs (title, company, location, source_url, source, description, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)]
+[parameters: ('Consultant·e Junior (Analyst) en Transformation Digitale – CTO/CIO Advisory – CDI Wavestone 3.6', 'Entreprise non extraite', 'Paris (75)', 'https://fr.indeed.com/viewjob?jk=aee181fb6185761f', 'Scrapper offres Indeed', "Consultant·e Junior (Analyst) en Transformation Digitale – CTO/CIO Advisory – CDI Rejoignez un cabinet de conseil international qui accompagne les grandes transformations stratégiques. Nous sommes Wavestone : des expert·es passionné·es et… Publié à l'instant", 'NEW', '2026-02-28 22:40:46.298310', '2026-02-28 22:40:46.298353')]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2026-02-28 23:40:58,960 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-02-28 23:41:02,915 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-02-28 23:41:06,314 | ERROR | job_application_assistant.main | Failed to load jobs
+Traceback (most recent call last):
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.IntegrityError: UNIQUE constraint failed: jobs.source_url
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\main.py", line 155, in _render_home
+    sync_status, sync_result = sync_jobs_from_default_alerts_excel(
+                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        session,
+        ^^^^^^^^
+        profile_id=profile_id,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 456, in sync_jobs_from_default_alerts_excel
+    result = import_jobs_from_alerts_excel_path(
+        session,
+        status.file_path,
+        profile_id=profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 421, in import_jobs_from_alerts_excel_path
+    created = _ingest_alert_row(
+        session,
+        row,
+        profile_id=effective_profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 289, in _ingest_alert_row
+    job, created = add_job(
+                   ~~~~~~~^
+        session,
+        ^^^^^^^^
+    ...<5 lines>...
+        source=_coerce_cell(row.get("Source")),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 364, in add_job
+    return repository.create(job), True
+           ~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\models\repositories.py", line 32, in create
+    self.session.commit()
+    ~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 2030, in commit
+    trans.commit(_to_root=True)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "<string>", line 2, in commit
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 1311, in commit
+    self._prepare_impl()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "<string>", line 2, in _prepare_impl
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 1286, in _prepare_impl
+    self.session.flush()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 4331, in flush
+    self._flush(objects)
+    ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 4466, in _flush
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\util\langhelpers.py", line 121, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 4427, in _flush
+    flush_context.execute()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\unitofwork.py", line 466, in execute
+    rec.execute(self)
+    ~~~~~~~~~~~^^^^^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.mapper,
+        ^^^^^^^^^^^^
+        uow.states_for_mapper_hierarchy(self.mapper, False, False),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        uow,
+        ^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        base_mapper,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        insert,
+        ^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\persistence.py", line 1233, in _emit_insert_statements
+    result = connection.execute(
+        statement,
+        params,
+        execution_options=execution_options,
+    )
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1419, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\sql\elements.py", line 527, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache_hit,
+    )
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 2363, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: jobs.source_url
+[SQL: INSERT INTO jobs (title, company, location, source_url, source, description, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)]
+[parameters: ('Analyste développeur C# (H/F) Crédit Mutuel Alliance Fédérale 3.9', 'Entreprise non extraite', 'Cergy (95)', 'https://fr.indeed.com/viewjob?jk=43ccfb027e5eac85', 'Scrapper offres Indeed', "Analyste développeur C# (H/F) Crédit Mutuel Alliance Fédérale 42 000 € - 50 000 € par an Euro-Information, filiale technologique de Crédit Mutuel Alliance Fédérale, conçoit, réalise, maintient et exploite un système d’information commun utilisé par… Publié à l'instant", 'NEW', '2026-02-28 22:41:02.916806', '2026-02-28 22:41:02.916860')]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2026-02-28 23:41:10,537 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-02-28 23:41:12,198 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-02-28 23:41:14,160 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-02-28 23:41:15,925 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-02-28 23:41:19,027 | ERROR | job_application_assistant.main | Failed to load jobs
+Traceback (most recent call last):
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.IntegrityError: UNIQUE constraint failed: jobs.source_url
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\main.py", line 155, in _render_home
+    sync_status, sync_result = sync_jobs_from_default_alerts_excel(
+                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        session,
+        ^^^^^^^^
+        profile_id=profile_id,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 456, in sync_jobs_from_default_alerts_excel
+    result = import_jobs_from_alerts_excel_path(
+        session,
+        status.file_path,
+        profile_id=profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 421, in import_jobs_from_alerts_excel_path
+    created = _ingest_alert_row(
+        session,
+        row,
+        profile_id=effective_profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 289, in _ingest_alert_row
+    job, created = add_job(
+                   ~~~~~~~^
+        session,
+        ^^^^^^^^
+    ...<5 lines>...
+        source=_coerce_cell(row.get("Source")),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 364, in add_job
+    return repository.create(job), True
+           ~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\models\repositories.py", line 32, in create
+    self.session.commit()
+    ~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 2030, in commit
+    trans.commit(_to_root=True)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "<string>", line 2, in commit
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 1311, in commit
+    self._prepare_impl()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "<string>", line 2, in _prepare_impl
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 1286, in _prepare_impl
+    self.session.flush()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 4331, in flush
+    self._flush(objects)
+    ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 4466, in _flush
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\util\langhelpers.py", line 121, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 4427, in _flush
+    flush_context.execute()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\unitofwork.py", line 466, in execute
+    rec.execute(self)
+    ~~~~~~~~~~~^^^^^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.mapper,
+        ^^^^^^^^^^^^
+        uow.states_for_mapper_hierarchy(self.mapper, False, False),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        uow,
+        ^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        base_mapper,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        insert,
+        ^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\persistence.py", line 1233, in _emit_insert_statements
+    result = connection.execute(
+        statement,
+        params,
+        execution_options=execution_options,
+    )
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1419, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\sql\elements.py", line 527, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache_hit,
+    )
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 2363, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: jobs.source_url
+[SQL: INSERT INTO jobs (title, company, location, source_url, source, description, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)]
+[parameters: ('Administrateur de bases de données (DBA) - F/H - Aix en Provence HELPLINE 3.1', 'Entreprise non extraite', 'Aix-en-Provence (13)', 'https://fr.indeed.com/viewjob?jk=8533707c635e827e', 'Scrapper offres Indeed', "Administrateur de bases de données (DBA) - F/H - Aix en Provence Aix-en-Provence (13) Candidature simplifiée S’étendant de Nice à Toulouse, la région sud de HELPLINE couvre les régions PACA (Provence-Alpes-Côte d'Azur) et OCCITANIE. Publié à l'instant", 'NEW', '2026-02-28 22:41:16.084620', '2026-02-28 22:41:16.084676')]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2026-02-28 23:41:37,355 | ERROR | job_application_assistant.main | Failed to load jobs
+Traceback (most recent call last):
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.IntegrityError: UNIQUE constraint failed: jobs.source_url
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\main.py", line 155, in _render_home
+    sync_status, sync_result = sync_jobs_from_default_alerts_excel(
+                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        session,
+        ^^^^^^^^
+        profile_id=profile_id,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 456, in sync_jobs_from_default_alerts_excel
+    result = import_jobs_from_alerts_excel_path(
+        session,
+        status.file_path,
+        profile_id=profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 421, in import_jobs_from_alerts_excel_path
+    created = _ingest_alert_row(
+        session,
+        row,
+        profile_id=effective_profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 289, in _ingest_alert_row
+    job, created = add_job(
+                   ~~~~~~~^
+        session,
+        ^^^^^^^^
+    ...<5 lines>...
+        source=_coerce_cell(row.get("Source")),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 364, in add_job
+    return repository.create(job), True
+           ~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\models\repositories.py", line 32, in create
+    self.session.commit()
+    ~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 2030, in commit
+    trans.commit(_to_root=True)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "<string>", line 2, in commit
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 1311, in commit
+    self._prepare_impl()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "<string>", line 2, in _prepare_impl
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 1286, in _prepare_impl
+    self.session.flush()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 4331, in flush
+    self._flush(objects)
+    ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 4466, in _flush
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\util\langhelpers.py", line 121, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 4427, in _flush
+    flush_context.execute()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\unitofwork.py", line 466, in execute
+    rec.execute(self)
+    ~~~~~~~~~~~^^^^^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.mapper,
+        ^^^^^^^^^^^^
+        uow.states_for_mapper_hierarchy(self.mapper, False, False),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        uow,
+        ^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        base_mapper,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        insert,
+        ^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\persistence.py", line 1233, in _emit_insert_statements
+    result = connection.execute(
+        statement,
+        params,
+        execution_options=execution_options,
+    )
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1419, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\sql\elements.py", line 527, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache_hit,
+    )
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 2363, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: jobs.source_url
+[SQL: INSERT INTO jobs (title, company, location, source_url, source, description, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)]
+[parameters: ('Business Analyste Transverse H/F', 'Coopérative U', 'Rungis (94)', 'https://fr.indeed.com/viewjob?jk=058c60651c5f08cc', 'Scrapper offres Indeed', 'Business Analyste Transverse H/F Coopérative U Rungis (94) Candidature simplifiée Co-construction des outils d’analyse et d’aide à la décision. Concevoir les tableaux de bord à destination des équipes et de la Direction (base hebdomadaire ou… il y a 1 jour', 'NEW', '2026-02-28 22:41:35.065528', '2026-02-28 22:41:35.065602')]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2026-02-28 23:41:52,102 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-02-28 23:42:00,738 | ERROR | job_application_assistant.main | Failed to load jobs
+Traceback (most recent call last):
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: database is locked
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\main.py", line 155, in _render_home
+    sync_status, sync_result = sync_jobs_from_default_alerts_excel(
+                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        session,
+        ^^^^^^^^
+        profile_id=profile_id,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 456, in sync_jobs_from_default_alerts_excel
+    result = import_jobs_from_alerts_excel_path(
+        session,
+        status.file_path,
+        profile_id=profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 421, in import_jobs_from_alerts_excel_path
+    created = _ingest_alert_row(
+        session,
+        row,
+        profile_id=effective_profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 289, in _ingest_alert_row
+    job, created = add_job(
+                   ~~~~~~~^
+        session,
+        ^^^^^^^^
+    ...<5 lines>...
+        source=_coerce_cell(row.get("Source")),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 359, in add_job
+    existing = repository.get_by_source_url(source_url)
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\models\repositories.py", line 74, in get_by_source_url
+    return self.session.exec(statement).first()
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlmodel\orm\session.py", line 75, in exec
+    results = super().execute(
+        statement,
+    ...<4 lines>...
+        _add_event=_add_event,
+    )
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 2351, in execute
+    return self._execute_internal(
+           ~~~~~~~~~~~~~~~~~~~~~~^
+        statement,
+        ^^^^^^^^^^
+    ...<4 lines>...
+        _add_event=_add_event,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 2249, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self,
+        ^^^^^
+    ...<4 lines>...
+        conn,
+        ^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\context.py", line 306, in orm_execute_statement
+    result = conn.execute(
+        statement, params or {}, execution_options=execution_options
+    )
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1419, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\sql\elements.py", line 527, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache_hit,
+    )
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 2363, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) database is locked
+[SQL: SELECT jobs.id, jobs.title, jobs.company, jobs.location, jobs.source_url, jobs.source, jobs.description, jobs.status, jobs.created_at, jobs.updated_at 
+FROM jobs 
+WHERE jobs.source_url = ?]
+[parameters: ('https://fr.indeed.com/viewjob?jk=bc630a3686ef82b9',)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-02-28 23:42:20,036 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-02-28 23:42:23,795 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-02-28 23:42:33,221 | ERROR | job_application_assistant.main | Failed to load jobs
+Traceback (most recent call last):
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.IntegrityError: UNIQUE constraint failed: jobs.source_url
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\main.py", line 155, in _render_home
+    sync_status, sync_result = sync_jobs_from_default_alerts_excel(
+                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        session,
+        ^^^^^^^^
+        profile_id=profile_id,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 456, in sync_jobs_from_default_alerts_excel
+    result = import_jobs_from_alerts_excel_path(
+        session,
+        status.file_path,
+        profile_id=profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 421, in import_jobs_from_alerts_excel_path
+    created = _ingest_alert_row(
+        session,
+        row,
+        profile_id=effective_profile_id,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 289, in _ingest_alert_row
+    job, created = add_job(
+                   ~~~~~~~^
+        session,
+        ^^^^^^^^
+    ...<5 lines>...
+        source=_coerce_cell(row.get("Source")),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 364, in add_job
+    return repository.create(job), True
+           ~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\models\repositories.py", line 32, in create
+    self.session.commit()
+    ~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 2030, in commit
+    trans.commit(_to_root=True)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "<string>", line 2, in commit
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 1311, in commit
+    self._prepare_impl()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "<string>", line 2, in _prepare_impl
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 1286, in _prepare_impl
+    self.session.flush()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 4331, in flush
+    self._flush(objects)
+    ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 4466, in _flush
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\util\langhelpers.py", line 121, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 4427, in _flush
+    flush_context.execute()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\unitofwork.py", line 466, in execute
+    rec.execute(self)
+    ~~~~~~~~~~~^^^^^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.mapper,
+        ^^^^^^^^^^^^
+        uow.states_for_mapper_hierarchy(self.mapper, False, False),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        uow,
+        ^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        base_mapper,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        insert,
+        ^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\persistence.py", line 1233, in _emit_insert_statements
+    result = connection.execute(
+        statement,
+        params,
+        execution_options=execution_options,
+    )
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1419, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\sql\elements.py", line 527, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache_hit,
+    )
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 2363, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: jobs.source_url
+[SQL: INSERT INTO jobs (title, company, location, source_url, source, description, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)]
+[parameters: ('Consultant Data Analyst - F/H', 'Niji', 'Rennes (35)', 'https://fr.indeed.com/viewjob?jk=69b847317b789cd8', 'Scrapper offres Indeed', "Consultant Data Analyst - F/H Rennes (35) Nous sommes plus qu’un simple cabinet de conseil, qu'une agence de design et qu'une société de mise en œuvre technologique. Publié à l'instant", 'NEW', '2026-02-28 22:42:32.421635', '2026-02-28 22:42:32.421744')]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2026-02-28 23:43:22,878 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-02-28 23:43:29,635 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-02-28 23:43:42,597 | INFO | job_application_assistant.browser_automation | Automation stopped before submit
+2026-02-28 23:43:44,658 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-02-28 23:43:56,951 | ERROR | job_application_assistant.main | Failed to load jobs
+Traceback (most recent call last):
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.IntegrityError: UNIQUE constraint failed: jobs.source_url
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\main.py", line 155, in _render_home
+    sync_status, sync_result = sync_jobs_from_default_alerts_excel(
+                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        session,
+        ^^^^^^^^
+        profile_id=profile_id,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 456, in sync_jobs_from_default_alerts_excel
+        profile_id: int | None = None,
+                 ^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        if not status.exists:
+        ^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 421, in import_jobs_from_alerts_excel_path
+    
+    
+    ...<3 lines>...
+        effective_profile_id = default_profile.id if default_profile else None
+        ^^^^^^^^^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 289, in _ingest_alert_row
+    
+    
+    ...<7 lines>...
+        source=_coerce_cell(row.get("Source")),
+        ^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\services\import_offres.py", line 364, in add_job
+    job = Job(**payload)
+           ~~^^^^^^^^^^^
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\models\repositories.py", line 32, in create
+    self.session.commit()
+    ~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 2030, in commit
+    trans.commit(_to_root=True)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "<string>", line 2, in commit
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 1311, in commit
+    self._prepare_impl()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "<string>", line 2, in _prepare_impl
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 1286, in _prepare_impl
+    self.session.flush()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 4331, in flush
+    self._flush(objects)
+    ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 4466, in _flush
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\util\langhelpers.py", line 121, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\session.py", line 4427, in _flush
+    flush_context.execute()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\unitofwork.py", line 466, in execute
+    rec.execute(self)
+    ~~~~~~~~~~~^^^^^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.mapper,
+        ^^^^^^^^^^^^
+        uow.states_for_mapper_hierarchy(self.mapper, False, False),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        uow,
+        ^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        base_mapper,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        insert,
+        ^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\orm\persistence.py", line 1233, in _emit_insert_statements
+    result = connection.execute(
+        statement,
+        params,
+        execution_options=execution_options,
+    )
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1419, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\sql\elements.py", line 527, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache_hit,
+    )
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 2363, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: jobs.source_url
+[SQL: INSERT INTO jobs (title, company, location, source_url, source, description, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)]
+[parameters: ('Data Steward H/F', 'PETIT FORESTIER OFFICE', 'Villepinte (93)', 'https://fr.indeed.com/viewjob?jk=bcbd341a938a4df1', 'Scrapper offres Indeed', 'Data Steward H/F PETIT FORESTIER OFFICE Villepinte (93) Candidature simplifiée Chez Petit Forestier Group, chaque collaborateur est un talent. Créer et maintenir les données de référence (articles, fournisseurs, caractéristiques, assets)… il y a 1 jour', 'NEW', '2026-02-28 22:43:51.776512', '2026-02-28 22:43:51.776567')]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2026-02-28 23:44:06,103 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-02-28 23:44:27,855 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-02-28 23:44:56,008 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-02-28 23:45:19,354 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-02-28 23:45:19,375 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-02-28 23:45:19,488 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-02-28 23:45:19,497 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-02-28 23:45:19,517 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-02-28 23:45:40,850 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-02-28 23:45:42,312 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-02-28 23:45:42,319 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-02-28 23:45:42,331 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-02-28 23:46:05,907 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-02-28 23:46:08,237 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-02-28 23:46:12,694 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-02-28 23:46:12,703 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-02-28 23:46:12,720 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-02-28 23:46:12,795 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-02-28 23:46:12,896 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-02-28 23:46:12,903 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-02-28 23:46:12,920 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-02-28 23:48:00,890 | ERROR | job_application_assistant.ui.postuler | Playwright assisted navigation failed
+Traceback (most recent call last):
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\ui\pages\_shared_postuler.py", line 139, in render
+    runtime_result = run_playwright_multi_step_flow(
+        start_url=job.source_url,
+    ...<5 lines>...
+        connector=connector,
+    )
+  File "C:\Users\macta\Desktop\vibe-coding\job-application-assistant\src\app\browser\playwright_runtime.py", line 67, in run_playwright_multi_step_flow
+    with sync_playwright() as playwright:
+         ~~~~~~~~~~~~~~~^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\playwright\sync_api\_context_manager.py", line 77, in __enter__
+    dispatcher_fiber.switch()
+    ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\playwright\sync_api\_context_manager.py", line 56, in greenlet_main
+    self._loop.run_until_complete(self._connection.run_as_sync())
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\asyncio\base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\playwright\_impl\_connection.py", line 301, in run_as_sync
+    await self.run()
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\playwright\_impl\_connection.py", line 310, in run
+    await self._transport.connect()
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\playwright\_impl\_transport.py", line 133, in connect
+    raise exc
+  File "C:\Users\macta\AppData\Roaming\Python\Python314\site-packages\playwright\_impl\_transport.py", line 120, in connect
+    self._proc = await asyncio.create_subprocess_exec(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<9 lines>...
+    )
+    ^
+  File "C:\Python314\Lib\asyncio\subprocess.py", line 224, in create_subprocess_exec
+    transport, protocol = await loop.subprocess_exec(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        stderr=stderr, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\asyncio\base_events.py", line 1798, in subprocess_exec
+    transport = await self._make_subprocess_transport(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        protocol, popen_args, False, stdin, stdout, stderr,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        bufsize, **kwargs)
+        ^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\asyncio\base_events.py", line 533, in _make_subprocess_transport
+    raise NotImplementedError
+NotImplementedError
+2026-02-28 23:49:57,673 | INFO | job_application_assistant.browser_automation | Automation stopped before submit
+2026-02-28 23:49:59,043 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row

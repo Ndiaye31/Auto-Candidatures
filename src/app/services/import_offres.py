@@ -9,6 +9,7 @@ from typing import TextIO
 from urllib.parse import urlparse
 
 import pandas as pd
+from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session
 
 from app.models.repositories import CandidateProfileRepository, JobRepository
@@ -361,7 +362,15 @@ def add_job(
             return existing, False
 
     job = Job(**payload)
-    return repository.create(job), True
+    try:
+        return repository.create(job), True
+    except IntegrityError:
+        session.rollback()
+        if source_url:
+            existing = repository.get_by_source_url(source_url)
+            if existing is not None:
+                return existing, False
+        raise
 
 
 def import_jobs_from_csv(session: Session, csv_file: TextIO) -> ImportResult:

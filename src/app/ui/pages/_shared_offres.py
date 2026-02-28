@@ -63,7 +63,21 @@ def render() -> None:
     if not filtered_jobs:
         st.info("Aucune offre ne correspond aux filtres actuels.")
         return
-    for item in filtered_jobs:
+
+    page_size = 10
+    total_pages = max(1, (len(filtered_jobs) + page_size - 1) // page_size)
+    current_page = st.number_input(
+        "Page",
+        min_value=1,
+        max_value=total_pages,
+        value=1,
+        step=1,
+    )
+    start = (int(current_page) - 1) * page_size
+    end = start + page_size
+    st.caption(f"Affichage des offres {start + 1} à {min(end, len(filtered_jobs))}")
+
+    for item in filtered_jobs[start:end]:
         with st.container(border=True):
             top_left, top_mid, top_right = st.columns([3, 1, 1])
             top_left.subheader(f"{item['title']} · {item['company']}")

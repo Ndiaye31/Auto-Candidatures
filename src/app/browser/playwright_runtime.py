@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -29,6 +30,11 @@ class SyncPlaywrightAdapter(BrowserStepAdapter):
 
     def click(self, selector: str) -> None:
         self.page.locator(selector).first.click()
+
+
+def _configure_windows_event_loop_policy() -> None:
+    if hasattr(asyncio, "WindowsProactorEventLoopPolicy"):
+        asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
 
 
 def _safe_click_first_available(page: Any, selectors: tuple[str, ...]) -> str | None:
@@ -64,6 +70,7 @@ def run_playwright_multi_step_flow(
     selected_connector = connector or detect_connector(start_url)
     from playwright.sync_api import sync_playwright
 
+    _configure_windows_event_loop_policy()
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(
             headless=runtime_config.headless,
