@@ -8,7 +8,13 @@ SRC_ROOT = Path(__file__).resolve().parents[2]
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from app.models.db import init_db  # noqa: E402
+from app.models.db import get_session, init_db  # noqa: E402
+from app.ui.components import get_default_profile_path, list_jobs_with_score  # noqa: E402
+from app.ui.pages import (  # noqa: E402
+    page_offers,
+    page_offer_detail,
+    page_postuler_assiste,
+)
 
 
 LAUNCH_INSTRUCTIONS = (
@@ -35,20 +41,43 @@ def _render_home() -> None:
     init_db()
     st.set_page_config(page_title="Job Application Assistant", layout="wide")
     st.title("Job Application Assistant")
-    st.caption("V1 - Import, Scoring, Pack, Postuler (assisté)")
+    st.caption("UI assistee uniquement. Aucun auto-submit.")
+
+    if "current_page" not in st.session_state:
+        st.session_state["current_page"] = "offres"
+
+    page = st.sidebar.radio(
+        "Pages",
+        options=["offres", "detail", "postuler"],
+        index=["offres", "detail", "postuler"].index(st.session_state["current_page"]),
+        format_func=lambda value: {
+            "offres": "Offres",
+            "detail": "Detail offre",
+            "postuler": "Postuler (assiste)",
+        }[value],
+    )
+    st.session_state["current_page"] = page
+
+    profile_path = get_default_profile_path()
+    with get_session() as session:
+        jobs = list_jobs_with_score(session, profile_path)
 
     col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Offres", "0")
-    col2.metric("Scorées", "0")
-    col3.metric("Packs", "0")
-    col4.metric("Pipeline", "0")
+    col1.metric("Offres", len(jobs))
+    col2.metric("Scorées", sum(1 for item in jobs if item["score"] is not None))
+    col3.metric("Applied", sum(1 for item in jobs if item["status"] == "applied"))
+    col4.metric(
+        "Horodatage",
+        datetime.now(timezone.utc).isoformat(timespec="seconds").split("T")[1],
+    )
 
     st.divider()
-    st.subheader("État")
-    st.write(
-        f"Horodatage: {datetime.now(timezone.utc).isoformat(timespec='seconds')}"
-    )
-    st.info("DB initialisée. Prochaines pages: Import, Scoring, Postuler, Pipeline.")
+    if page == "offres":
+        page_offers.render()
+    elif page == "detail":
+        page_offer_detail.render()
+    else:
+        page_postuler_assiste.render()
 
 
 def run() -> None:
