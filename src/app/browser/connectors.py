@@ -83,3 +83,35 @@ def detect_connector(url: str | None) -> SiteConnector:
         if any(hostname.endswith(domain) for domain in connector.domains):
             return connector
     return GENERIC_CONNECTOR
+
+
+def resolve_connector(
+    *,
+    url: str | None,
+    application_channel: str | None = None,
+) -> SiteConnector:
+    normalized_channel = (application_channel or "").strip().lower()
+    if normalized_channel == "indeed_easy_apply":
+        return INDEED_CONNECTOR
+    if normalized_channel == "hellowork_easy_apply":
+        return HELLOWORK_CONNECTOR
+    if normalized_channel.endswith("_external") or normalized_channel == "external_ats":
+        return GENERIC_CONNECTOR
+    return detect_connector(url)
+
+
+def describe_application_channel(application_channel: str | None) -> str:
+    normalized_channel = (application_channel or "").strip().lower()
+    if normalized_channel == "indeed_easy_apply":
+        return "Indeed Easy Apply"
+    if normalized_channel == "indeed_external":
+        return "Indeed External ATS"
+    if normalized_channel == "hellowork_easy_apply":
+        return "HelloWork Easy Apply"
+    if normalized_channel == "hellowork_external":
+        return "HelloWork External ATS"
+    if normalized_channel == "easy_apply":
+        return "Easy Apply"
+    if normalized_channel == "external_ats":
+        return "External ATS"
+    return "Canal non determine"

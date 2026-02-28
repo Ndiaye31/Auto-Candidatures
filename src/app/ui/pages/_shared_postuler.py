@@ -5,7 +5,7 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
-from app.browser.connectors import detect_connector
+from app.browser.connectors import describe_application_channel, resolve_connector
 from app.browser.playwright_runtime import (
     PlaywrightSessionConfig,
     run_playwright_multi_step_flow,
@@ -89,7 +89,14 @@ def render() -> None:
     if active_profile is not None:
         st.caption(f"Profil actif: {active_profile.name}")
     domain_key = st.text_input("Site / domaine", value=get_domain_key(job.source_url))
-    connector = detect_connector(job.source_url)
+    connector = resolve_connector(
+        url=job.source_url,
+        application_channel=(application.application_channel if application is not None else None),
+    )
+    channel_label = describe_application_channel(
+        application.application_channel if application is not None else None
+    )
+    st.caption(f"Canal candidature: {channel_label}")
     st.caption(f"Connecteur navigateur: {connector.label}")
     html = st.text_area(
         "HTML du formulaire",
