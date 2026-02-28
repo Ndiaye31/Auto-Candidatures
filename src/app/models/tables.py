@@ -1,75 +1,110 @@
 from __future__ import annotations
 
-from datetime import datetime
-from typing import Optional
+from datetime import datetime, timezone
+from enum import StrEnum
+from typing import Any
 
 from sqlalchemy import Column, JSON
 from sqlmodel import Field, SQLModel
 
 
-class Company(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    name: str
-    website: Optional[str] = None
+def utcnow() -> datetime:
+    return datetime.now(timezone.utc)
 
 
-class JobOffer(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    company_id: Optional[int] = Field(default=None, foreign_key="company.id")
-    title: str
-    location: Optional[str] = None
-    contract_type: Optional[str] = None
-    source: Optional[str] = None
-    url: Optional[str] = None
-    description_raw: Optional[str] = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+class JobStatus(StrEnum):
+    NEW = "new"
+    REVIEWING = "reviewing"
+    APPLIED = "applied"
+    ARCHIVED = "archived"
 
 
-class JobOfferImport(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    source_type: str
-    source_ref: str
-    imported_at: datetime = Field(default_factory=datetime.utcnow)
-    status: str = "ok"
-    errors: Optional[str] = None
+class ApplicationStatus(StrEnum):
+    DRAFT = "draft"
+    SUBMITTED = "submitted"
+    INTERVIEW = "interview"
+    REJECTED = "rejected"
+    OFFER = "offer"
 
 
-class CandidateProfile(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
+class ContactStatus(StrEnum):
+    NEW = "new"
+    CONTACTED = "contacted"
+    REPLIED = "replied"
+    INACTIVE = "inactive"
+
+
+class EventStatus(StrEnum):
+    PENDING = "pending"
+    PROCESSED = "processed"
+    FAILED = "failed"
+
+
+class SchemaVersion(SQLModel, table=True):
+    __tablename__ = "schema_versions"
+
+    id: int | None = Field(default=None, primary_key=True)
+    component: str = Field(index=True, unique=True)
+    version: int
+    updated_at: datetime = Field(default_factory=utcnow, nullable=False)
+
+
+class Job(SQLModel, table=True):
+    __tablename__ = "jobs"
+
+    id: int | None = Field(default=None, primary_key=True)
+    title: str = Field(index=True)
+    company: str = Field(index=True)
+    location: str | None = None
+    source_url: str | None = None
+    description: str | None = None
+    status: JobStatus = Field(default=JobStatus.NEW, index=True)
+    created_at: datetime = Field(default_factory=utcnow, nullable=False)
+    updated_at: datetime = Field(default_factory=utcnow, nullable=False)
+
+
+class Application(SQLModel, table=True):
+    __tablename__ = "applications"
+
+    id: int | None = Field(default=None, primary_key=True)
+    job_id: int = Field(foreign_key="jobs.id", index=True)
+    cover_letter_path: str | None = None
+    resume_path: str | None = None
+    status: ApplicationStatus = Field(default=ApplicationStatus.DRAFT, index=True)
+    submitted_at: datetime | None = None
+    notes: str | None = None
+    created_at: datetime = Field(default_factory=utcnow, nullable=False)
+    updated_at: datetime = Field(default_factory=utcnow, nullable=False)
+
+
+class Contact(SQLModel, table=True):
+    __tablename__ = "contacts"
+
+    id: int | None = Field(default=None, primary_key=True)
+    job_id: int | None = Field(default=None, foreign_key="jobs.id", index=True)
+    application_id: int | None = Field(
+        default=None, foreign_key="applications.id", index=True
+    )
     full_name: str
-    email: Optional[str] = None
-    phone: Optional[str] = None
-    location: Optional[str] = None
-    skills_json: Optional[dict] = Field(default=None, sa_column=Column(JSON))
-    experience_years: Optional[int] = None
-    notes: Optional[str] = None
+    email: str | None = None
+    phone: str | None = None
+    role: str | None = None
+    status: ContactStatus = Field(default=ContactStatus.NEW, index=True)
+    notes: str | None = None
+    created_at: datetime = Field(default_factory=utcnow, nullable=False)
+    updated_at: datetime = Field(default_factory=utcnow, nullable=False)
 
 
-class Score(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    job_offer_id: int = Field(foreign_key="joboffer.id")
-    candidate_profile_id: int = Field(foreign_key="candidateprofile.id")
-    score_total: float
-    score_breakdown_json: dict = Field(sa_column=Column(JSON))
-    computed_at: datetime = Field(default_factory=datetime.utcnow)
+class Event(SQLModel, table=True):
+    __tablename__ = "events"
 
-
-class ApplicationPack(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    job_offer_id: int = Field(foreign_key="joboffer.id")
-    candidate_profile_id: int = Field(foreign_key="candidateprofile.id")
-    pack_path: str
-    cv_path: str
-    lm_path: str
-    answers_json_path: str
-    fields_csv_path: str
-    generated_at: datetime = Field(default_factory=datetime.utcnow)
-
-
-class PipelineEvent(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    job_offer_id: int = Field(foreign_key="joboffer.id")
-    event_type: str
-    payload_json: Optional[dict] = Field(default=None, sa_column=Column(JSON))
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    id: int | None = Field(default=None, primary_key=True)
+    job_id: int | None = Field(default=None, foreign_key="jobs.id", index=True)
+    application_id: int | None = Field(
+        default=None, foreign_key="applications.id", index=True
+    )
+    contact_id: int | None = Field(default=None, foreign_key="contacts.id", index=True)
+    event_type: str = Field(index=True)
+    status: EventStatus = Field(default=EventStatus.PENDING, index=True)
+    payload: dict[str, Any] | None = Field(default=None, sa_column=Column(JSON))
+    created_at: datetime = Field(default_factory=utcnow, nullable=False)

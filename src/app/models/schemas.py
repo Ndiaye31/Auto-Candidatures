@@ -1,24 +1,51 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional
+from typing import Any
 
 from pydantic import BaseModel
 
+from app.models.tables import (
+    ApplicationStatus,
+    ContactStatus,
+    EventStatus,
+    JobStatus,
+)
 
-class JobOfferCreate(BaseModel):
-    company_id: Optional[int] = None
+
+class JobCreate(BaseModel):
     title: str
-    location: Optional[str] = None
-    contract_type: Optional[str] = None
-    source: Optional[str] = None
-    url: Optional[str] = None
-    description_raw: Optional[str] = None
+    company: str
+    location: str | None = None
+    source_url: str | None = None
+    description: str | None = None
+    status: JobStatus = JobStatus.NEW
 
 
-class ScoreView(BaseModel):
-    job_offer_id: int
-    candidate_profile_id: int
-    score_total: float
-    score_breakdown_json: dict
-    computed_at: datetime
+class ApplicationCreate(BaseModel):
+    job_id: int
+    cover_letter_path: str | None = None
+    resume_path: str | None = None
+    status: ApplicationStatus = ApplicationStatus.DRAFT
+    submitted_at: datetime | None = None
+    notes: str | None = None
+
+
+class ContactCreate(BaseModel):
+    full_name: str
+    job_id: int | None = None
+    application_id: int | None = None
+    email: str | None = None
+    phone: str | None = None
+    role: str | None = None
+    status: ContactStatus = ContactStatus.NEW
+    notes: str | None = None
+
+
+class EventCreate(BaseModel):
+    event_type: str
+    job_id: int | None = None
+    application_id: int | None = None
+    contact_id: int | None = None
+    status: EventStatus = EventStatus.PENDING
+    payload: dict[str, Any] | None = None
