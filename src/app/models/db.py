@@ -44,6 +44,7 @@ def _run_basic_migrations(active_engine: Engine) -> None:
     inspector = inspect(active_engine)
     tables = set(inspector.get_table_names())
     if "applications" in tables:
+        _add_column_if_missing(active_engine, "applications", "profile_id INTEGER")
         _add_column_if_missing(active_engine, "applications", "application_channel TEXT")
         _add_column_if_missing(active_engine, "applications", "stage TEXT")
         _add_column_if_missing(active_engine, "applications", "last_event_at TIMESTAMP")
