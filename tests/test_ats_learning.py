@@ -48,6 +48,11 @@ def test_should_record_external_domain_detects_redirects_and_external_channels()
     assert not should_record_external_domain(
         source_url="https://fr.indeed.com/viewjob?jk=abc123",
         target_url="https://fr.indeed.com/viewjob?jk=abc123",
+        application_channel="indeed_external",
+    )
+    assert not should_record_external_domain(
+        source_url="https://fr.indeed.com/viewjob?jk=abc123",
+        target_url="https://fr.indeed.com/viewjob?jk=abc123",
         application_channel="indeed_easy_apply",
     )
 

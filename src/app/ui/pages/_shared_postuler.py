@@ -5,7 +5,11 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
-from app.browser.connectors import describe_application_channel, resolve_connector
+from app.browser.connectors import (
+    describe_application_channel,
+    infer_indeed_apply_kind,
+    resolve_connector,
+)
 from app.browser.playwright_runtime import (
     PlaywrightSessionConfig,
     run_playwright_multi_step_flow,
@@ -235,6 +239,14 @@ def render() -> None:
             st.caption(f"URL atteinte: {browser_run['resolved_url']}")
         if browser_run["apply_click_selector"]:
             st.caption(f"Bouton d'entree clique: {browser_run['apply_click_selector']}")
+            if browser_run["connector"] == "indeed":
+                inferred_apply_kind = infer_indeed_apply_kind(
+                    browser_run["apply_click_selector"]
+                )
+                if inferred_apply_kind == "easy_apply":
+                    st.caption("Indeed: bouton detecte comme Easy Apply.")
+                elif inferred_apply_kind == "external":
+                    st.caption("Indeed: bouton detecte comme redirection vers ATS externe.")
         if browser_run["snapshot_path"]:
             st.caption(f"Snapshot HTML: {browser_run['snapshot_path']}")
         st.dataframe(browser_run["steps"], use_container_width=True, hide_index=True)

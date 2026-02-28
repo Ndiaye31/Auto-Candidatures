@@ -6,6 +6,7 @@ from app.browser.connectors import (
     GREENHOUSE_CONNECTOR,
     HELLOWORK_CONNECTOR,
     INDEED_CONNECTOR,
+    infer_indeed_apply_kind,
     LEVER_CONNECTOR,
     SMARTRECRUITERS_CONNECTOR,
     WORKDAY_CONNECTOR,
@@ -78,3 +79,8 @@ def test_resolve_connector_uses_learned_external_target_domain() -> None:
 
 def test_describe_application_channel_returns_human_label() -> None:
     assert describe_application_channel("hellowork_easy_apply") == "HelloWork Easy Apply"
+
+
+def test_infer_indeed_apply_kind_from_button_text() -> None:
+    assert infer_indeed_apply_kind("button:Continuer pour postuler") == "external"
+    assert infer_indeed_apply_kind("button:Postuler maintenant") == "easy_apply"

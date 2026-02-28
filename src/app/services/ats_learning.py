@@ -34,8 +34,10 @@ def should_record_external_domain(
     target_domain = normalize_domain(target_url)
     if target_domain is None:
         return False
+    if source_domain is None:
+        return normalized_channel.endswith("_external") or normalized_channel == "external_ats"
     if normalized_channel.endswith("_external") or normalized_channel == "external_ats":
-        return True
+        return target_domain != source_domain
     return source_domain is not None and target_domain != source_domain
 
 

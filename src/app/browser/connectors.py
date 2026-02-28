@@ -40,17 +40,21 @@ INDEED_CONNECTOR = SiteConnector(
         "button[aria-label*='Postuler']",
         "a[aria-label*='Postuler']",
         "button:has-text('Postuler maintenant')",
+        "button:has-text('Continuer pour postuler')",
         "button:has-text('Candidature simplifiée')",
         "button:has-text('Postuler')",
         "a:has-text('Postuler')",
         "button:has-text('Apply now')",
+        "button:has-text('Continue to apply')",
         "a:has-text('Apply now')",
     ),
     apply_texts=(
         "Postuler maintenant",
+        "Continuer pour postuler",
         "Candidature simplifiée",
         "Postuler",
         "Apply now",
+        "Continue to apply",
         "Apply",
     ),
 )
@@ -185,3 +189,18 @@ def describe_application_channel(application_channel: str | None) -> str:
     if normalized_channel == "external_ats":
         return "External ATS"
     return "Canal non determine"
+
+
+def infer_indeed_apply_kind(apply_click_selector: str | None) -> str | None:
+    normalized_value = (apply_click_selector or "").strip().lower()
+    if not normalized_value:
+        return None
+    if "continuer pour postuler" in normalized_value or "continue to apply" in normalized_value:
+        return "external"
+    if (
+        "postuler maintenant" in normalized_value
+        or "apply now" in normalized_value
+        or "candidature simplifiée" in normalized_value
+    ):
+        return "easy_apply"
+    return None
