@@ -1,0 +1,14 @@
+keywords:
+  - term: python
+    weight: 12
+  - term: fastapi
+    weight: 10
+  - term: postgresql
+    weight: 8
+target_stack:
+  - python
+  - fastapi
+  - postgresql
+preferences:
+  remote: preferred
+  seniority: mid
