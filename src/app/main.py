@@ -4,8 +4,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 import sys
 
-import yaml
-
 SRC_ROOT = Path(__file__).resolve().parents[2]
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
@@ -49,6 +47,7 @@ LAUNCH_INSTRUCTIONS = (
     "  app"
 )
 LOGGER = get_logger("main")
+PROFILE_YAML_SEED = "identity:\n  full_name: ''\n  email: ''\n"
 
 
 def _is_streamlit_runtime() -> bool:
@@ -95,10 +94,9 @@ def _render_profiles_sidebar() -> None:
     with st.sidebar.expander("Nouveau profil"):
         with st.form("new-profile-form"):
             profile_name = st.text_input("Nom du profil")
-            yaml_seed = {"identity": {"full_name": "", "email": ""}}
             profile_yaml = st.text_area(
                 "YAML du profil",
-                value=yaml.safe_dump(yaml_seed, allow_unicode=True, sort_keys=False),
+                value=PROFILE_YAML_SEED,
                 height=220,
             )
             set_default = st.checkbox("Definir comme profil actif", value=True)

@@ -7,6 +7,8 @@ from typing import Any
 from sqlalchemy import Column, JSON, String
 from sqlmodel import Field, SQLModel
 
+TABLE_ARGS = {"extend_existing": True}
+
 
 def utcnow() -> datetime:
     return datetime.now(timezone.utc)
@@ -58,6 +60,7 @@ class EventStatus(StrEnum):
 
 class SchemaVersion(SQLModel, table=True):
     __tablename__ = "schema_versions"
+    __table_args__ = TABLE_ARGS
 
     id: int | None = Field(default=None, primary_key=True)
     component: str = Field(index=True, unique=True)
@@ -67,6 +70,7 @@ class SchemaVersion(SQLModel, table=True):
 
 class CandidateProfile(SQLModel, table=True):
     __tablename__ = "candidate_profiles"
+    __table_args__ = TABLE_ARGS
 
     id: int | None = Field(default=None, primary_key=True)
     name: str = Field(index=True)
@@ -79,6 +83,7 @@ class CandidateProfile(SQLModel, table=True):
 
 class Job(SQLModel, table=True):
     __tablename__ = "jobs"
+    __table_args__ = TABLE_ARGS
 
     id: int | None = Field(default=None, primary_key=True)
     title: str = Field(index=True)
@@ -99,6 +104,7 @@ class Job(SQLModel, table=True):
 
 class Application(SQLModel, table=True):
     __tablename__ = "applications"
+    __table_args__ = TABLE_ARGS
 
     id: int | None = Field(default=None, primary_key=True)
     job_id: int = Field(foreign_key="jobs.id", index=True)
@@ -122,6 +128,7 @@ class Application(SQLModel, table=True):
 
 class Contact(SQLModel, table=True):
     __tablename__ = "contacts"
+    __table_args__ = TABLE_ARGS
 
     id: int | None = Field(default=None, primary_key=True)
     job_id: int | None = Field(default=None, foreign_key="jobs.id", index=True)
@@ -140,6 +147,7 @@ class Contact(SQLModel, table=True):
 
 class Event(SQLModel, table=True):
     __tablename__ = "events"
+    __table_args__ = TABLE_ARGS
 
     id: int | None = Field(default=None, primary_key=True)
     job_id: int | None = Field(default=None, foreign_key="jobs.id", index=True)
@@ -157,6 +165,7 @@ class Event(SQLModel, table=True):
 
 class AtsDomainStat(SQLModel, table=True):
     __tablename__ = "ats_domain_stats"
+    __table_args__ = TABLE_ARGS
 
     id: int | None = Field(default=None, primary_key=True)
     domain: str = Field(index=True, unique=True)
