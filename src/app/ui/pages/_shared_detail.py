@@ -21,7 +21,12 @@ from app.services.generation_pack import generate_application_pack
 from app.ui.components import (
     compute_job_score,
     get_active_profile_payload,
+    get_selected_job_id,
+    go_to_page,
+    is_pack_ready_for_job,
     mark_job_applied,
+    push_flash,
+    render_job_summary_card,
 )
 from app.utils.logging import get_logger
 
@@ -29,10 +34,16 @@ LOGGER = get_logger("ui.detail")
 
 
 def render() -> None:
-    st.title("Detail offre")
-    job_id = st.session_state.get("selected_job_id")
+    st.subheader("2. Generation pack")
+    st.markdown(
+        "<div class='section-hint'>Prepare les documents et le suivi ATS avant de passer au remplissage assiste.</div>",
+        unsafe_allow_html=True,
+    )
+    job_id = get_selected_job_id()
     if not job_id:
-        st.info("Selectionne une offre depuis la page Offres.")
+        st.info("Aucune offre selectionnee. Reviens a l'etape 1 pour choisir une offre.")
+        if st.button("Retour a la selection des offres", type="primary"):
+            go_to_page("offres")
         return
 
     try:
@@ -62,29 +73,27 @@ def render() -> None:
                 contacts = get_application_contacts(session, application.id)
                 timeline = get_application_timeline(session, application.id)
 
-    title_col, action_col1, action_col2, action_col3, action_col4 = st.columns([4, 1, 1, 1, 1])
-    title_col.subheader(f"{job.title} · {job.company}")
-    if job.source_url:
-        action_col1.link_button("Ouvrir URL", job.source_url, use_container_width=True)
-    if action_col2.button("Creer ATS", use_container_width=True):
-        if active_profile is None:
-            st.error("Aucun profil actif.")
-        else:
-            try:
-                with get_session() as session:
-                    application = ensure_application(
-                        session, job_id=job.id, profile_id=active_profile.id
-                    )
-            except Exception as exc:
-                LOGGER.exception("ATS creation failed", extra={"job_id": job.id})
-                st.error("Creation du dossier ATS impossible.")
-                st.exception(exc)
-            else:
-                st.success(f"Dossier ATS cree: #{application.id}")
-                st.rerun()
-    if action_col3.button("Generer pack", use_container_width=True):
+    render_job_summary_card(
+        title=job.title,
+        company=job.company,
+        meta=(
+            f"{job.location or 'Localisation non renseignee'} · "
+            f"Score {score_result.score if score_result else 'N/A'} · "
+            f"Profil {active_profile.name if active_profile is not None else 'indisponible'}"
+        ),
+        kicker="Preparation candidature",
+    )
+
+    status_col1, status_col2, status_col3, status_col4 = st.columns(4)
+    status_col1.metric("Statut offre", job.status.value)
+    status_col2.metric("Score", score_result.score if score_result else "N/A")
+    status_col3.metric("Dossier ATS", f"#{application.id}" if application else "a creer")
+    status_col4.metric("Pack", "pret" if is_pack_ready_for_job(job.id) else "a generer")
+
+    primary_col1, primary_col2, primary_col3, primary_col4 = st.columns([1.3, 1, 1, 1])
+    if primary_col1.button("Generer le pack", type="primary", use_container_width=True):
         if profile_data is None:
-            st.error("Aucun profil disponible.")
+            st.error("Aucun profil disponible pour generer le pack.")
         else:
             try:
                 result = generate_application_pack(
@@ -98,13 +107,37 @@ def render() -> None:
                 st.error("Generation du pack impossible.")
                 st.exception(exc)
             else:
+                st.session_state["last_pack_job_id"] = job.id
                 st.session_state["last_pack_dir"] = str(result.output_dir)
-                st.success(f"Pack genere dans {result.output_dir}")
-    if action_col4.button("Postuler assiste", use_container_width=True):
-        st.session_state["current_page"] = "postuler"
-        st.rerun()
+                push_flash("success", f"Pack genere dans {result.output_dir}")
+                st.rerun()
+    if primary_col2.button("Creer ATS", use_container_width=True):
+        if active_profile is None:
+            st.error("Aucun profil actif.")
+        else:
+            try:
+                with get_session() as session:
+                    created_application = ensure_application(
+                        session,
+                        job_id=job.id,
+                        profile_id=active_profile.id,
+                    )
+            except Exception as exc:
+                LOGGER.exception("ATS creation failed", extra={"job_id": job.id})
+                st.error("Creation du dossier ATS impossible.")
+                st.exception(exc)
+            else:
+                push_flash("success", f"Dossier ATS pret: #{created_application.id}")
+                st.rerun()
+    if job.source_url:
+        primary_col3.link_button("Ouvrir l'offre", job.source_url, use_container_width=True)
+    else:
+        primary_col3.caption("URL source indisponible")
+    if primary_col4.button("Etape 3 · Postuler", use_container_width=True):
+        go_to_page("postuler", selected_job_id=job.id)
 
-    if st.button("Marquer applied"):
+    quick_col1, quick_col2, quick_col3 = st.columns(3)
+    if quick_col1.button("Marquer applied", use_container_width=True):
         try:
             with get_session() as session:
                 if application is not None:
@@ -112,7 +145,7 @@ def render() -> None:
                         session,
                         application_id=application.id,
                         stage=ApplicationStage.APPLIED,
-                        note="Offre marquee comme applied depuis le detail",
+                        note="Offre marquee comme applied depuis l'etape pack",
                     )
                 else:
                     mark_job_applied(session, int(job.id))
@@ -121,31 +154,47 @@ def render() -> None:
             st.error("Impossible de mettre a jour le statut.")
             st.exception(exc)
         else:
-            st.success("Offre marquee comme applied.")
+            push_flash("success", "Offre marquee comme applied.")
+            st.rerun()
+    quick_col2.caption(
+        f"Dernier pack: {st.session_state['last_pack_dir']}"
+        if is_pack_ready_for_job(job.id)
+        else "Aucun pack genere pour cette offre."
+    )
+    quick_col3.caption("Aucune soumission automatique n'est effectuee.")
 
-    info_col1, info_col2, info_col3 = st.columns(3)
-    info_col1.metric("Statut", job.status.value)
-    info_col2.metric("Localisation", job.location or "N/A")
-    info_col3.metric("Score", score_result.score if score_result else "N/A")
-    if active_profile is not None:
-        st.caption(f"Profil actif: {active_profile.name}")
-    if application is not None:
-        st.caption(f"Candidature ATS: #{application.id} · stage `{application.stage.value}`")
+    tabs = st.tabs(["Pack et score", "Workflow ATS", "Contacts et timeline"])
+    with tabs[0]:
+        if st.session_state.get("last_pack_job_id") == job.id and st.session_state.get("last_pack_dir"):
+            pack_dir = Path(st.session_state["last_pack_dir"])
+            if pack_dir.exists():
+                st.success(f"Pack disponible dans {pack_dir}")
+                st.dataframe(
+                    [
+                        {"fichier": path.name, "taille_octets": path.stat().st_size}
+                        for path in sorted(pack_dir.iterdir())
+                        if path.is_file()
+                    ],
+                    use_container_width=True,
+                    hide_index=True,
+                )
+        else:
+            st.info("Genere le pack pour produire les fichiers de candidature.")
 
-    st.write(job.description or "Description non renseignee.")
-    if score_result:
-        st.caption("Explication du score")
-        for reason in score_result.reasons:
-            st.write(f"- {reason.label} ({reason.impact:+.1f})")
-            st.caption(reason.evidence)
+        st.markdown("**Description de l'offre**")
+        st.write(job.description or "Description non renseignee.")
+        st.markdown("**Explication du score**")
+        if score_result and score_result.reasons:
+            for reason in score_result.reasons:
+                st.write(f"- {reason.label} ({reason.impact:+.1f})")
+                st.caption(reason.evidence)
+        else:
+            st.info("Aucune explication de score disponible.")
 
-    st.divider()
-    st.subheader("Workflow ATS")
-    if application is None:
-        st.info("Aucune candidature ATS pour cette offre et ce profil.")
-    else:
-        left, right = st.columns([2, 1])
-        with left:
+    with tabs[1]:
+        if application is None:
+            st.info("Aucun dossier ATS pour cette offre et ce profil.")
+        else:
             with st.form("ats-stage-form"):
                 stage = st.selectbox(
                     "Stage",
@@ -154,11 +203,12 @@ def render() -> None:
                         application.stage.value
                     ),
                 )
-                next_step = st.text_input(
+                form_col1, form_col2 = st.columns(2)
+                next_step = form_col1.text_input(
                     "Prochaine action",
                     value=application.next_step or "",
                 )
-                next_step_due_at = st.date_input(
+                next_step_due_at = form_col2.date_input(
                     "Echeance",
                     value=(
                         application.next_step_due_at.date()
@@ -172,7 +222,8 @@ def render() -> None:
                 )
                 note = st.text_area("Note de transition")
                 submitted = st.form_submit_button(
-                    "Mettre a jour le workflow", use_container_width=True
+                    "Mettre a jour le workflow",
+                    use_container_width=True,
                 )
             if submitted:
                 try:
@@ -201,15 +252,13 @@ def render() -> None:
                     st.error("Mise a jour ATS impossible.")
                     st.exception(exc)
                 else:
-                    st.success("Workflow ATS mis a jour.")
+                    push_flash("success", "Workflow ATS mis a jour.")
                     st.rerun()
 
             with st.form("ats-event-form"):
                 event_type = st.text_input("Type d'evenement", value="note")
                 event_note = st.text_area("Note d'activite")
-                event_submitted = st.form_submit_button(
-                    "Ajouter un evenement", use_container_width=True
-                )
+                event_submitted = st.form_submit_button("Ajouter un evenement", use_container_width=True)
             if event_submitted:
                 if not event_note.strip():
                     st.warning("La note d'activite est obligatoire.")
@@ -227,41 +276,47 @@ def render() -> None:
                         st.error("Ajout d'evenement impossible.")
                         st.exception(exc)
                     else:
-                        st.success("Evenement ATS ajoute.")
+                        push_flash("success", "Evenement ATS ajoute.")
                         st.rerun()
-        with right:
-            with st.form("ats-contact-form"):
-                full_name = st.text_input("Nom du contact")
-                email = st.text_input("Email")
-                phone = st.text_input("Telephone")
-                role = st.text_input("Role")
-                notes = st.text_area("Notes contact")
-                contact_submitted = st.form_submit_button(
-                    "Ajouter un contact", use_container_width=True
-                )
-            if contact_submitted:
-                try:
-                    with get_session() as session:
-                        add_contact(
-                            session,
-                            application_id=application.id,
-                            full_name=full_name,
-                            email=email or None,
-                            phone=phone or None,
-                            role=role or None,
-                            notes=notes or None,
-                        )
-                except AtsError as exc:
-                    st.error(str(exc))
-                except Exception as exc:
-                    LOGGER.exception("ATS contact creation failed", extra={"job_id": job.id})
-                    st.error("Ajout de contact impossible.")
-                    st.exception(exc)
-                else:
-                    st.success("Contact ajoute.")
-                    st.rerun()
 
-            st.caption("Contacts")
+    with tabs[2]:
+        left, right = st.columns([1, 1.2])
+        with left:
+            if application is None:
+                st.info("Cree d'abord le dossier ATS pour ajouter des contacts.")
+            else:
+                with st.form("ats-contact-form"):
+                    full_name = st.text_input("Nom du contact")
+                    email = st.text_input("Email")
+                    phone = st.text_input("Telephone")
+                    role = st.text_input("Role")
+                    notes = st.text_area("Notes contact")
+                    contact_submitted = st.form_submit_button(
+                        "Ajouter un contact",
+                        use_container_width=True,
+                    )
+                if contact_submitted:
+                    try:
+                        with get_session() as session:
+                            add_contact(
+                                session,
+                                application_id=application.id,
+                                full_name=full_name,
+                                email=email or None,
+                                phone=phone or None,
+                                role=role or None,
+                                notes=notes or None,
+                            )
+                    except AtsError as exc:
+                        st.error(str(exc))
+                    except Exception as exc:
+                        LOGGER.exception("ATS contact creation failed", extra={"job_id": job.id})
+                        st.error("Ajout de contact impossible.")
+                        st.exception(exc)
+                    else:
+                        push_flash("success", "Contact ajoute.")
+                        st.rerun()
+            st.markdown("**Contacts**")
             if contacts:
                 for contact in contacts:
                     with st.container(border=True):
@@ -269,18 +324,15 @@ def render() -> None:
                         st.caption(" | ".join(filter(None, [contact.role, contact.email, contact.phone])))
             else:
                 st.info("Aucun contact.")
-
-        st.caption("Timeline")
-        if timeline:
-            for event in timeline:
-                with st.container(border=True):
-                    st.write(f"**{event.event_type}** · {event.event_at.isoformat(timespec='minutes')}")
-                    if event.note:
-                        st.write(event.note)
-                    if event.payload:
-                        st.caption(str(event.payload))
-        else:
-            st.info("Aucun evenement ATS.")
-
-    if st.session_state.get("last_pack_dir"):
-        st.info(f"Dernier pack genere: {st.session_state['last_pack_dir']}")
+        with right:
+            st.markdown("**Timeline ATS**")
+            if timeline:
+                for event in timeline:
+                    with st.container(border=True):
+                        st.write(f"**{event.event_type}** · {event.event_at.isoformat(timespec='minutes')}")
+                        if event.note:
+                            st.write(event.note)
+                        if event.payload:
+                            st.caption(str(event.payload))
+            else:
+                st.info("Aucun evenement ATS.")

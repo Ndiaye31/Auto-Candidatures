@@ -11,6 +11,7 @@ if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
 from app.models.db import get_session, init_db  # noqa: E402
+from app.models.repositories import JobRepository  # noqa: E402
 from app.services.import_offres import sync_jobs_from_default_alerts_excel  # noqa: E402
 from app.services.profiles import (  # noqa: E402
     ProfileError,
@@ -23,7 +24,12 @@ from app.ui.components import (  # noqa: E402
     get_active_profile,
     get_active_profile_payload,
     get_default_profile_path,
+    get_selected_job_id,
     list_jobs_with_score,
+    render_app_styles,
+    render_flash,
+    render_workflow_header,
+    set_current_page,
 )
 from app.ui.pages import (  # noqa: E402
     page_import_offres,
@@ -117,6 +123,7 @@ def _render_home() -> None:
     import streamlit as st
 
     st.set_page_config(page_title="Job Application Assistant", layout="wide")
+    render_app_styles()
     try:
         init_db()
     except Exception as exc:
@@ -126,27 +133,40 @@ def _render_home() -> None:
         return
 
     st.title("Job Application Assistant")
-    st.caption("UI assistee uniquement. Aucun auto-submit.")
+    st.caption("Workflow guide: selection offre, generation pack, postuler assiste. Aucun auto-submit.")
     _render_profiles_sidebar()
 
     if "current_page" not in st.session_state:
         st.session_state["current_page"] = "offres"
-
-    page = st.sidebar.radio(
-        "Pages",
-        options=["import", "offres", "detail", "pipeline", "postuler"],
-        index=["import", "offres", "detail", "pipeline", "postuler"].index(
+    if "workflow_step" not in st.session_state:
+        st.session_state["workflow_step"] = (
             st.session_state["current_page"]
-        ),
+            if st.session_state["current_page"] in {"offres", "detail", "postuler"}
+            else "offres"
+        )
+
+    sidebar_primary = st.sidebar.radio(
+        "Workflow principal",
+        options=["offres", "detail", "postuler"],
+        index=["offres", "detail", "postuler"].index(st.session_state["workflow_step"]),
         format_func=lambda value: {
-            "import": "Import offres",
-            "offres": "Offres",
-            "detail": "Detail offre",
-            "pipeline": "Pipeline ATS",
-            "postuler": "Postuler (assiste)",
+            "offres": "1. Selection offre",
+            "detail": "2. Generation pack",
+            "postuler": "3. Postuler assiste",
         }[value],
     )
-    st.session_state["current_page"] = page
+    if sidebar_primary != st.session_state["workflow_step"]:
+        st.session_state["workflow_step"] = sidebar_primary
+        st.session_state["current_page"] = sidebar_primary
+    elif st.session_state["current_page"] in {"offres", "detail", "postuler"}:
+        st.session_state["current_page"] = sidebar_primary
+    with st.sidebar.expander("Outils secondaires", expanded=False):
+        if st.button("Import offres", use_container_width=True):
+            set_current_page("import")
+            st.rerun()
+        if st.button("Pipeline ATS", use_container_width=True):
+            set_current_page("pipeline")
+            st.rerun()
 
     try:
         with get_session() as session:
@@ -157,6 +177,12 @@ def _render_home() -> None:
                 profile_id=profile_id,
             )
             jobs = list_jobs_with_score(session, profile_data=profile_data)
+            selected_job_id = get_selected_job_id()
+            selected_job = (
+                JobRepository(session).get(selected_job_id)
+                if selected_job_id is not None
+                else None
+            )
     except Exception as exc:
         LOGGER.exception("Failed to load jobs")
         st.error("Chargement des offres impossible.")
@@ -178,6 +204,26 @@ def _render_home() -> None:
     elif sync_status.exists:
         st.sidebar.caption("Sync alertes: aucune modification detectee")
 
+    render_flash()
+    render_workflow_header(st.session_state["current_page"], selected_job=selected_job)
+
+    primary_actions = st.columns([1, 1, 1, 2])
+    if primary_actions[0].button("Etape 1 · Offres", use_container_width=True):
+        st.session_state["workflow_step"] = "offres"
+        set_current_page("offres")
+        st.rerun()
+    if primary_actions[1].button("Etape 2 · Pack", use_container_width=True):
+        st.session_state["workflow_step"] = "detail"
+        set_current_page("detail")
+        st.rerun()
+    if primary_actions[2].button("Etape 3 · Postuler", use_container_width=True):
+        st.session_state["workflow_step"] = "postuler"
+        set_current_page("postuler")
+        st.rerun()
+    primary_actions[3].caption(
+        "Navigation principale claire. Les outils d'import et le pipeline ATS restent disponibles dans la sidebar."
+    )
+
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("Offres", len(jobs))
     col2.metric("Scorées", sum(1 for item in jobs if item["score"] is not None))
@@ -189,6 +235,7 @@ def _render_home() -> None:
 
     st.divider()
     try:
+        page = st.session_state["current_page"]
         if page == "import":
             page_import_offres.render()
         elif page == "offres":

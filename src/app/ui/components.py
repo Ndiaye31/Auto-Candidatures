@@ -19,6 +19,220 @@ from app.utils.logging import get_logger
 
 MAPPINGS_PATH = Path("data/mappings/site_mappings.json")
 LOGGER = get_logger("ui.components")
+WORKFLOW_SEQUENCE = ("offres", "detail", "postuler")
+WORKFLOW_LABELS = {
+    "offres": "1. Selection offre",
+    "detail": "2. Generation pack",
+    "postuler": "3. Postuler assiste",
+}
+
+
+def render_app_styles() -> None:
+    st.markdown(
+        """
+        <style>
+        .stApp {
+            background:
+                radial-gradient(circle at top right, rgba(12, 74, 110, 0.08), transparent 28rem),
+                linear-gradient(180deg, #f8fafc 0%, #eef4f7 100%);
+        }
+        html, body, [class*="css"] {
+            font-family: "Aptos", "Segoe UI", sans-serif;
+        }
+        .workflow-shell {
+            background: rgba(255, 255, 255, 0.82);
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            border-radius: 18px;
+            padding: 1rem 1.1rem;
+            box-shadow: 0 16px 40px rgba(15, 23, 42, 0.06);
+            backdrop-filter: blur(10px);
+            margin-bottom: 1rem;
+        }
+        .workflow-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.8rem;
+            margin-top: 0.8rem;
+        }
+        .workflow-step {
+            border-radius: 16px;
+            padding: 0.95rem 1rem;
+            background: #f8fafc;
+            border: 1px solid rgba(148, 163, 184, 0.28);
+        }
+        .workflow-step.active {
+            background: linear-gradient(135deg, #0f766e, #155e75);
+            color: white;
+            border-color: transparent;
+        }
+        .workflow-step.complete {
+            background: linear-gradient(135deg, rgba(21, 128, 61, 0.12), rgba(15, 118, 110, 0.12));
+            border-color: rgba(21, 128, 61, 0.22);
+        }
+        .workflow-index {
+            font-size: 0.8rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            opacity: 0.7;
+        }
+        .workflow-title {
+            font-size: 1.02rem;
+            font-weight: 700;
+            margin-top: 0.3rem;
+        }
+        .workflow-copy {
+            font-size: 0.92rem;
+            margin-top: 0.25rem;
+            opacity: 0.84;
+        }
+        .summary-card {
+            background: rgba(255, 255, 255, 0.82);
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            border-radius: 18px;
+            padding: 1rem 1.1rem;
+            box-shadow: 0 12px 24px rgba(15, 23, 42, 0.05);
+        }
+        .summary-kicker {
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-size: 0.74rem;
+            color: #0f766e;
+            font-weight: 700;
+        }
+        .summary-title {
+            font-size: 1.18rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-top: 0.25rem;
+        }
+        .summary-meta {
+            color: #475569;
+            font-size: 0.95rem;
+            margin-top: 0.25rem;
+        }
+        .section-hint {
+            color: #475569;
+            font-size: 0.95rem;
+            margin-bottom: 0.75rem;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def push_flash(level: str, message: str) -> None:
+    st.session_state["workflow_flash"] = {"level": level, "message": message}
+
+
+def render_flash() -> None:
+    flash = st.session_state.pop("workflow_flash", None)
+    if not flash:
+        return
+    level = flash.get("level", "info")
+    message = str(flash.get("message", ""))
+    display = getattr(st, level, st.info)
+    display(message)
+
+
+def set_current_page(page: str) -> None:
+    st.session_state["current_page"] = page
+
+
+def go_to_page(page: str, *, selected_job_id: int | None = None) -> None:
+    if selected_job_id is not None:
+        st.session_state["selected_job_id"] = selected_job_id
+    if page in WORKFLOW_SEQUENCE:
+        st.session_state["workflow_step"] = page
+    set_current_page(page)
+    st.rerun()
+
+
+def get_selected_job_id() -> int | None:
+    selected_job_id = st.session_state.get("selected_job_id")
+    if selected_job_id is None:
+        return None
+    return int(selected_job_id)
+
+
+def is_pack_ready_for_job(job_id: int | None) -> bool:
+    if job_id is None:
+        return False
+    if st.session_state.get("last_pack_job_id") != job_id:
+        return False
+    output_dir = st.session_state.get("last_pack_dir")
+    return bool(output_dir and Path(output_dir).exists())
+
+
+def render_workflow_header(current_page: str, *, selected_job: Job | None = None) -> None:
+    selected_job_id = selected_job.id if selected_job is not None else get_selected_job_id()
+    pack_ready = is_pack_ready_for_job(selected_job_id)
+    current_primary = current_page if current_page in WORKFLOW_SEQUENCE else "offres"
+    current_index = WORKFLOW_SEQUENCE.index(current_primary)
+    completed = {
+        "offres": selected_job_id is not None,
+        "detail": pack_ready,
+        "postuler": False,
+    }
+    copy_map = {
+        "offres": "Choisir une offre, filtrer et verifier son score.",
+        "detail": "Generer les documents et preparer le dossier.",
+        "postuler": "Piloter le remplissage sans jamais soumettre.",
+    }
+    cards: list[str] = []
+    for index, page in enumerate(WORKFLOW_SEQUENCE, start=1):
+        classes = ["workflow-step"]
+        if page == current_primary:
+            classes.append("active")
+        elif completed.get(page):
+            classes.append("complete")
+        cards.append(
+            "<div class='{classes}'>"
+            "<div class='workflow-index'>Etape {index}</div>"
+            "<div class='workflow-title'>{title}</div>"
+            "<div class='workflow-copy'>{copy}</div>"
+            "</div>".format(
+                classes=" ".join(classes),
+                index=index,
+                title=WORKFLOW_LABELS[page],
+                copy=copy_map[page],
+            )
+        )
+
+    selected_copy = "Aucune offre selectionnee."
+    if selected_job is not None:
+        selected_copy = f"Offre active: {selected_job.title} · {selected_job.company}"
+
+    st.markdown(
+        (
+            "<div class='workflow-shell'>"
+            "<div class='summary-kicker'>Workflow candidature</div>"
+            "<div class='summary-title'>Parcours guide en 3 etapes</div>"
+            f"<div class='summary-meta'>{selected_copy}</div>"
+            f"<div class='workflow-grid'>{''.join(cards)}</div>"
+            "</div>"
+        ),
+        unsafe_allow_html=True,
+    )
+
+
+def render_job_summary_card(
+    *,
+    title: str,
+    company: str,
+    meta: str,
+    kicker: str = "Offre selectionnee",
+) -> None:
+    st.markdown(
+        (
+            "<div class='summary-card'>"
+            f"<div class='summary-kicker'>{kicker}</div>"
+            f"<div class='summary-title'>{title} · {company}</div>"
+            f"<div class='summary-meta'>{meta}</div>"
+            "</div>"
+        ),
+        unsafe_allow_html=True,
+    )
 
 
 def get_default_profile_path() -> Path | None:

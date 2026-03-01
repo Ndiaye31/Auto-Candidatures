@@ -2793,3 +2793,5 @@ playwright._impl._errors.Error: Page.content: Unable to retrieve content because
 2026-03-01 00:19:35,470 | INFO | job_application_assistant.browser_automation | Automation stopped before submit
 2026-03-01 00:28:19,769 | INFO | job_application_assistant.browser_automation | Automation stopped before submit
 2026-03-01 00:28:22,081 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
+2026-03-01 15:50:08,525 | INFO | job_application_assistant.browser_automation | Automation stopped before submit
+2026-03-01 15:50:13,390 | WARNING | job_application_assistant.import_offres | Skipping invalid alerts row
